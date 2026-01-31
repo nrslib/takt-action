@@ -8,8 +8,11 @@ branding:
 
 inputs:
   anthropic_api_key:
-    description: 'Anthropic API key for Claude'
-    required: true
+    description: 'Anthropic API key (required when provider is claude)'
+    required: false
+  openai_api_key:
+    description: 'OpenAI API key (required when provider is codex)'
+    required: false
   github_token:
     description: 'GitHub token for API access'
     required: true
@@ -18,6 +21,12 @@ inputs:
     description: 'TAKT workflow to execute (e.g. review, default)'
     required: false
     default: 'review'
+  model:
+    description: 'Model to use (e.g. opus, sonnet, haiku). Defaults to workflow/config setting.'
+    required: false
+  provider:
+    description: 'Provider to use (claude or codex). Defaults to workflow/config setting.'
+    required: false
   pr_number:
     description: 'Pull request number (auto-detected from event if not specified)'
     required: false

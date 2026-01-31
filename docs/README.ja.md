@@ -83,9 +83,12 @@ jobs:
 
 | パラメータ | 必須 | デフォルト | 説明 |
 |-----------|------|-----------|------|
-| `anthropic_api_key` | はい | - | Anthropic API キー |
+| `anthropic_api_key` | 条件付き | - | Anthropic API キー（provider が claude の場合必須） |
+| `openai_api_key` | 条件付き | - | OpenAI API キー（provider が codex の場合必須） |
 | `github_token` | はい | `${{ github.token }}` | GitHub API トークン |
 | `workflow` | いいえ | `review` | 実行する TAKT ワークフロー |
+| `model` | いいえ | (デフォルト) | 使用するモデル（opus, sonnet, haiku 等） |
+| `provider` | いいえ | `claude` | 使用するプロバイダー（claude または codex） |
 | `pr_number` | いいえ | (自動検出) | PR 番号 |
 | `post_review` | いいえ | `true` | レビュー結果を PR インラインコメントとして投稿 |
 

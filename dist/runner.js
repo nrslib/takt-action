@@ -9,13 +9,21 @@ export async function runTakt(options) {
     if (options.workflow) {
         args.push('--workflow', options.workflow);
     }
+    if (options.model) {
+        args.push('--model', options.model);
+    }
+    if (options.provider) {
+        args.push('--provider', options.provider);
+    }
     let stdout = '';
     let stderr = '';
+    const env = {
+        ...process.env,
+        ...(options.anthropicApiKey && { ANTHROPIC_API_KEY: options.anthropicApiKey }),
+        ...(options.openaiApiKey && { OPENAI_API_KEY: options.openaiApiKey }),
+    };
     const exitCode = await exec.exec('takt', args, {
-        env: {
-            ...process.env,
-            ANTHROPIC_API_KEY: options.anthropicApiKey,
-        },
+        env,
         listeners: {
             stdout: (data) => {
                 stdout += data.toString();

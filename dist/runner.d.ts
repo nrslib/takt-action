@@ -1,7 +1,10 @@
 export interface TaktRunOptions {
     task: string;
     workflow?: string;
-    anthropicApiKey: string;
+    model?: string;
+    provider?: string;
+    anthropicApiKey?: string;
+    openaiApiKey?: string;
 }
 export interface TaktRunResult {
     exitCode: number;

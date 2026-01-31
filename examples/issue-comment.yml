@@ -23,3 +23,8 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: Specify model (opus, sonnet, haiku)
+          # model: sonnet
+          # For Codex provider:
+          # provider: codex
+          # openai_api_key: ${{ secrets.OPENAI_API_KEY }}

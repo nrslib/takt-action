@@ -85,9 +85,12 @@ jobs:
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `anthropic_api_key` | Yes | - | Anthropic API key for Claude |
+| `anthropic_api_key` | Conditional | - | Anthropic API key (required when provider is claude) |
+| `openai_api_key` | Conditional | - | OpenAI API key (required when provider is codex) |
 | `github_token` | Yes | `${{ github.token }}` | GitHub token for API access |
 | `workflow` | No | `review` | TAKT workflow to execute |
+| `model` | No | (default) | Model to use (opus, sonnet, haiku, etc.) |
+| `provider` | No | `claude` | Provider to use (claude or codex) |
 | `pr_number` | No | (auto-detect) | Pull request number |
 | `post_review` | No | `true` | Post review results as PR inline comments |
 

@@ -31940,13 +31940,21 @@ async function runTakt(options) {
     if (options.workflow) {
         args.push('--workflow', options.workflow);
     }
+    if (options.model) {
+        args.push('--model', options.model);
+    }
+    if (options.provider) {
+        args.push('--provider', options.provider);
+    }
     let stdout = '';
     let stderr = '';
+    const env = {
+        ...process.env,
+        ...(options.anthropicApiKey && { ANTHROPIC_API_KEY: options.anthropicApiKey }),
+        ...(options.openaiApiKey && { OPENAI_API_KEY: options.openaiApiKey }),
+    };
     const exitCode = await exec.exec('takt', args, {
-        env: {
-            ...process.env,
-            ANTHROPIC_API_KEY: options.anthropicApiKey,
-        },
+        env,
         listeners: {
             stdout: (data) => {
                 stdout += data.toString();
@@ -32047,15 +32055,32 @@ async function ensureTaktInstalled() {
 
 async function run() {
     const eventType = detectEventType();
-    const anthropicApiKey = core.getInput('anthropic_api_key', { required: true });
+    const anthropicApiKey = core.getInput('anthropic_api_key');
+    const openaiApiKey = core.getInput('openai_api_key');
     const githubToken = core.getInput('github_token', { required: true });
     const workflow = core.getInput('workflow');
+    const model = core.getInput('model');
+    const provider = core.getInput('provider') || 'claude';
     const inputPrNumber = core.getInput('pr_number');
     const postReview = core.getInput('post_review') === 'true';
-    core.setSecret(anthropicApiKey);
+    // Validate API keys based on provider
+    if (provider === 'claude' && !anthropicApiKey) {
+        core.setFailed('anthropic_api_key is required when using Claude provider');
+        return;
+    }
+    if (provider === 'codex' && !openaiApiKey) {
+        core.setFailed('openai_api_key is required when using Codex provider');
+        return;
+    }
+    if (anthropicApiKey)
+        core.setSecret(anthropicApiKey);
+    if (openaiApiKey)
+        core.setSecret(openaiApiKey);
     core.setSecret(githubToken);
     core.info(`Event type: ${eventType}`);
     core.info(`Workflow: ${workflow}`);
+    core.info(`Model: ${model || '(default)'}`);
+    core.info(`Provider: ${provider || '(default)'}`);
     core.info(`Post review: ${postReview}`);
     switch (eventType) {
         case 'pull_request': {
@@ -32110,7 +32135,10 @@ async function run() {
                 const result = await runTakt({
                     task: taskContent,
                     workflow: selectedWorkflow,
-                    anthropicApiKey,
+                    model: model || undefined,
+                    provider: provider !== 'claude' ? provider : undefined,
+                    anthropicApiKey: anthropicApiKey || undefined,
+                    openaiApiKey: openaiApiKey || undefined,
                 });
                 core.info(`takt exited with code ${result.exitCode}`);
                 const commentBody = formatRunResult(result, selectedWorkflow);
