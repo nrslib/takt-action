@@ -32099,16 +32099,28 @@ const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(impo
 /**
  * Install takt CLI globally if not already installed.
  * Checks if takt is already available before installing.
+ * @param version - Installation source: 'latest' (npm) or 'git' (repository)
  */
-async function ensureTaktInstalled() {
+async function ensureTaktInstalled(version = 'latest') {
     try {
         await exec.exec('takt', ['--version'], { silent: true });
         core.info('takt CLI is already installed');
     }
     catch {
-        core.info('Installing takt CLI...');
-        await exec.exec('npm', ['install', '-g', 'takt']);
-        core.info('takt CLI installed successfully');
+        if (version === 'git') {
+            core.info('Installing takt CLI from git repository...');
+            // Clone and build from git for testing unreleased versions
+            await exec.exec('git', ['clone', 'https://github.com/nrslib/takt.git', '/tmp/takt']);
+            await exec.exec('npm', ['install'], { cwd: '/tmp/takt' });
+            await exec.exec('npm', ['run', 'build'], { cwd: '/tmp/takt' });
+            await exec.exec('npm', ['link'], { cwd: '/tmp/takt' });
+            core.info('takt CLI installed successfully from git');
+        }
+        else {
+            core.info('Installing takt CLI from npm...');
+            await exec.exec('npm', ['install', '-g', 'takt']);
+            core.info('takt CLI installed successfully');
+        }
     }
 }
 /**
@@ -32166,6 +32178,7 @@ async function run() {
     const provider = core.getInput('provider') || 'claude';
     const inputPrNumber = core.getInput('pr_number');
     const postReview = core.getInput('post_review') === 'true';
+    const taktVersion = core.getInput('takt_version') || 'latest';
     // Validate API keys based on provider
     if (provider === 'claude' && !anthropicApiKey) {
         core.setFailed('anthropic_api_key is required when using Claude provider');
@@ -32238,7 +32251,7 @@ async function run() {
                 const selectedProvider = command.options.provider ?? provider;
                 await core.group(`#${issueCommentContext.issueNumber}: Running takt workflow "${selectedWorkflow}"`, async () => {
                     core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
-                    await ensureTaktInstalled();
+                    await ensureTaktInstalled(taktVersion);
                     const result = await runTakt({
                         issueNumber: issueCommentContext.issueNumber,
                         repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,

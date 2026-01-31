@@ -24,6 +24,7 @@ async function run(): Promise<void> {
   const provider = core.getInput('provider') || 'claude';
   const inputPrNumber = core.getInput('pr_number');
   const postReview = core.getInput('post_review') === 'true';
+  const taktVersion = core.getInput('takt_version') || 'latest';
 
   // Validate API keys based on provider
   if (provider === 'claude' && !anthropicApiKey) {
@@ -115,7 +116,7 @@ async function run(): Promise<void> {
           async () => {
             core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
 
-            await ensureTaktInstalled();
+            await ensureTaktInstalled(taktVersion);
 
             const result = await runTakt({
               issueNumber: issueCommentContext.issueNumber,

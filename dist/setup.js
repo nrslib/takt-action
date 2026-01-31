@@ -5,16 +5,28 @@ import * as path from 'node:path';
 /**
  * Install takt CLI globally if not already installed.
  * Checks if takt is already available before installing.
+ * @param version - Installation source: 'latest' (npm) or 'git' (repository)
  */
-export async function ensureTaktInstalled() {
+export async function ensureTaktInstalled(version = 'latest') {
     try {
         await exec.exec('takt', ['--version'], { silent: true });
         core.info('takt CLI is already installed');
     }
     catch {
-        core.info('Installing takt CLI...');
-        await exec.exec('npm', ['install', '-g', 'takt']);
-        core.info('takt CLI installed successfully');
+        if (version === 'git') {
+            core.info('Installing takt CLI from git repository...');
+            // Clone and build from git for testing unreleased versions
+            await exec.exec('git', ['clone', 'https://github.com/nrslib/takt.git', '/tmp/takt']);
+            await exec.exec('npm', ['install'], { cwd: '/tmp/takt' });
+            await exec.exec('npm', ['run', 'build'], { cwd: '/tmp/takt' });
+            await exec.exec('npm', ['link'], { cwd: '/tmp/takt' });
+            core.info('takt CLI installed successfully from git');
+        }
+        else {
+            core.info('Installing takt CLI from npm...');
+            await exec.exec('npm', ['install', '-g', 'takt']);
+            core.info('takt CLI installed successfully');
+        }
     }
 }
 /**

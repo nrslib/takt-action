@@ -38,6 +38,10 @@ inputs:
     description: 'Post review results as PR inline comments'
     required: false
     default: 'true'
+  takt_version:
+    description: 'TAKT CLI installation source (latest: npm stable release, git: latest from repository)'
+    required: false
+    default: 'latest'
 
 runs:
   using: 'node20'
