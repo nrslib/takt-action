@@ -7,7 +7,6 @@ export interface TaktRunOptions {
     autoPr: boolean;
     anthropicApiKey?: string;
     openaiApiKey?: string;
-    createWorktree?: 'yes' | 'no';
     logOutput?: boolean;
 }
 export interface TaktRunResult {
@@ -16,8 +15,9 @@ export interface TaktRunResult {
     stderr: string;
 }
 /**
- * Execute a takt workflow via CLI.
- * Uses --issue for GitHub issue context and --auto-pr for PR creation.
+ * Execute a takt workflow via CLI in pipeline mode.
+ * Uses --pipeline for non-interactive execution, --issue for GitHub issue context,
+ * and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 export declare function runTakt(options: TaktRunOptions): Promise<TaktRunResult>;

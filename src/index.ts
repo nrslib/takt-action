@@ -109,13 +109,6 @@ async function run(): Promise<void> {
         const selectedWorkflow = commandWorkflow ?? workflow;
         const selectedModel = command.options.model ?? model;
         const selectedProvider = command.options.provider ?? provider;
-        const createWorktreeOption = command.options['create-worktree'];
-        const createWorktreeValue =
-          createWorktreeOption === 'no'
-            ? 'no'
-            : createWorktreeOption === 'yes' || createWorktreeOption === 'true'
-              ? 'yes'
-              : undefined;
 
         await core.group(
           `#${issueCommentContext.issueNumber}: Running takt workflow "${selectedWorkflow}"`,
@@ -133,7 +126,6 @@ async function run(): Promise<void> {
               provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
               anthropicApiKey: anthropicApiKey || undefined,
               openaiApiKey: openaiApiKey || undefined,
-              createWorktree: createWorktreeValue ?? 'no',
               logOutput,
             });
 

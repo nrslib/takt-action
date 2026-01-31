@@ -303,26 +303,6 @@ describe('parseSubcommand', () => {
       options: { model: 'sonnet', provider: 'codex' },
     });
   });
-
-  it('parses @takt run --create-worktree with trailing instruction', () => {
-    const result = parseSubcommand('@takt run --create-worktree provide diff');
-    expect(result).toEqual({
-      command: 'run',
-      workflow: undefined,
-      instruction: 'diff',
-      options: { 'create-worktree': 'provide' },
-    });
-  });
-
-  it('parses @takt run --create-worktree no comment', () => {
-    const result = parseSubcommand('@takt run --create-worktree no comment');
-    expect(result).toEqual({
-      command: 'run',
-      workflow: undefined,
-      instruction: 'comment',
-      options: { 'create-worktree': 'no' },
-    });
-  });
 });
 
 describe('buildIssueTaskContent', () => {

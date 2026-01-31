@@ -62,7 +62,7 @@ export function parseSubcommand(commentBody: string): TaktCommand {
     idx = 1;
   }
 
-  const valueOptions = new Set(['workflow', 'model', 'provider', 'create-worktree']);
+  const valueOptions = new Set(['workflow', 'model', 'provider']);
 
   while (idx < tokens.length) {
     const token = tokens[idx];

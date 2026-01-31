@@ -1,12 +1,13 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 /**
- * Execute a takt workflow via CLI.
- * Uses --issue for GitHub issue context and --auto-pr for PR creation.
+ * Execute a takt workflow via CLI in pipeline mode.
+ * Uses --pipeline for non-interactive execution, --issue for GitHub issue context,
+ * and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 export async function runTakt(options) {
-    const args = ['--issue', String(options.issueNumber), '--repo', options.repo];
+    const args = ['--pipeline', '--issue', String(options.issueNumber), '--repo', options.repo];
     if (options.autoPr) {
         args.push('--auto-pr');
     }
@@ -18,9 +19,6 @@ export async function runTakt(options) {
     }
     if (options.provider) {
         args.push('--provider', options.provider);
-    }
-    if (options.createWorktree) {
-        args.push('--create-worktree', options.createWorktree);
     }
     // Log the command for debugging
     core.info(`Executing: takt ${args.join(' ')}`);

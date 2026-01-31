@@ -31741,7 +31741,7 @@ function parseSubcommand(commentBody) {
         workflowToken = firstToken;
         idx = 1;
     }
-    const valueOptions = new Set(['workflow', 'model', 'provider', 'create-worktree']);
+    const valueOptions = new Set(['workflow', 'model', 'provider']);
     while (idx < tokens.length) {
         const token = tokens[idx];
         if (!token) {
@@ -31977,12 +31977,13 @@ function buildIssueTaskContent(ctx, instruction) {
 
 
 /**
- * Execute a takt workflow via CLI.
- * Uses --issue for GitHub issue context and --auto-pr for PR creation.
+ * Execute a takt workflow via CLI in pipeline mode.
+ * Uses --pipeline for non-interactive execution, --issue for GitHub issue context,
+ * and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 async function runTakt(options) {
-    const args = ['--issue', String(options.issueNumber), '--repo', options.repo];
+    const args = ['--pipeline', '--issue', String(options.issueNumber), '--repo', options.repo];
     if (options.autoPr) {
         args.push('--auto-pr');
     }
@@ -31994,9 +31995,6 @@ async function runTakt(options) {
     }
     if (options.provider) {
         args.push('--provider', options.provider);
-    }
-    if (options.createWorktree) {
-        args.push('--create-worktree', options.createWorktree);
     }
     // Log the command for debugging
     core.info(`Executing: takt ${args.join(' ')}`);
@@ -32238,12 +32236,6 @@ async function run() {
                 const selectedWorkflow = commandWorkflow ?? workflow;
                 const selectedModel = command.options.model ?? model;
                 const selectedProvider = command.options.provider ?? provider;
-                const createWorktreeOption = command.options['create-worktree'];
-                const createWorktreeValue = createWorktreeOption === 'no'
-                    ? 'no'
-                    : createWorktreeOption === 'yes' || createWorktreeOption === 'true'
-                        ? 'yes'
-                        : undefined;
                 await core.group(`#${issueCommentContext.issueNumber}: Running takt workflow "${selectedWorkflow}"`, async () => {
                     core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
                     await ensureTaktInstalled();
@@ -32256,7 +32248,6 @@ async function run() {
                         provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
                         anthropicApiKey: anthropicApiKey || undefined,
                         openaiApiKey: openaiApiKey || undefined,
-                        createWorktree: createWorktreeValue ?? 'no',
                         logOutput,
                     });
                     core.info(`takt exited with code ${result.exitCode}`);
