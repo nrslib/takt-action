@@ -20,7 +20,7 @@ inputs:
   workflow:
     description: 'TAKT workflow to execute (e.g. review, default)'
     required: false
-    default: 'review'
+    default: 'default'
   model:
     description: 'Model to use (e.g. opus, sonnet, haiku). Defaults to workflow/config setting.'
     required: false

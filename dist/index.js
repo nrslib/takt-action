@@ -32029,7 +32029,13 @@ async function postIssueComment(token, owner, repo, issueNumber, body) {
     });
 }
 
+;// CONCATENATED MODULE: external "node:fs"
+const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
+;// CONCATENATED MODULE: external "node:path"
+const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
 ;// CONCATENATED MODULE: ./src/setup.ts
+
+
 
 
 /**
@@ -32055,7 +32061,17 @@ async function ensureGitHubCliAuthenticated(githubToken) {
     if (!githubToken) {
         throw new Error('github_token input is required to authenticate the gh CLI');
     }
-    const env = { ...process.env, GH_TOKEN: githubToken };
+    const configDir = process.env.GH_CONFIG_DIR || external_node_path_namespaceObject.join('/', 'tmp', 'github-cli');
+    external_node_fs_namespaceObject.mkdirSync(configDir, { recursive: true });
+    const env = {
+        ...process.env,
+        GH_TOKEN: githubToken,
+        GITHUB_TOKEN: githubToken,
+        GH_CONFIG_DIR: configDir,
+    };
+    process.env.GH_CONFIG_DIR = configDir;
+    process.env.GH_TOKEN = githubToken;
+    process.env.GITHUB_TOKEN = githubToken;
     const statusCode = await exec.exec('gh', ['auth', 'status'], {
         env,
         ignoreReturnCode: true,

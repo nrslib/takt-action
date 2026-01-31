@@ -1,5 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 /**
  * Install takt CLI globally if not already installed.
@@ -25,7 +27,17 @@ export async function ensureGitHubCliAuthenticated(githubToken: string): Promise
     throw new Error('github_token input is required to authenticate the gh CLI');
   }
 
-  const env = { ...process.env, GH_TOKEN: githubToken };
+  const configDir = process.env.GH_CONFIG_DIR || path.join('/', 'tmp', 'github-cli');
+  fs.mkdirSync(configDir, { recursive: true });
+  const env = {
+    ...process.env,
+    GH_TOKEN: githubToken,
+    GITHUB_TOKEN: githubToken,
+    GH_CONFIG_DIR: configDir,
+  };
+  process.env.GH_CONFIG_DIR = configDir;
+  process.env.GH_TOKEN = githubToken;
+  process.env.GITHUB_TOKEN = githubToken;
   const statusCode = await exec.exec('gh', ['auth', 'status'], {
     env,
     ignoreReturnCode: true,
