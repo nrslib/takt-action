@@ -48,6 +48,9 @@ export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
     args.push('--create-worktree', options.createWorktree);
   }
 
+  // Log the command for debugging
+  core.info(`Executing: takt ${args.join(' ')}`);
+
   let stdout = '';
   let stderr = '';
 

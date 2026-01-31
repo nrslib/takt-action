@@ -31998,6 +31998,8 @@ async function runTakt(options) {
     if (options.createWorktree) {
         args.push('--create-worktree', options.createWorktree);
     }
+    // Log the command for debugging
+    core.info(`Executing: takt ${args.join(' ')}`);
     let stdout = '';
     let stderr = '';
     const env = {
