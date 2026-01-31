@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { detectEventType, resolvePrNumber, buildPrContext, buildCommentContext } from './context.js';
+import { detectEventType, resolvePrNumber, buildPrContext, formatPrContext, buildCommentContext } from './context.js';
 
 async function run(): Promise<void> {
   const eventType = detectEventType();
@@ -27,8 +27,13 @@ async function run(): Promise<void> {
 
       core.info(`Processing PR #${prNumber}`);
       const prContext = await buildPrContext(prNumber);
+      const formattedContext = formatPrContext(prContext);
+
       core.info(`PR: ${prContext.title}`);
+      core.info(`Changed files: ${prContext.changedFiles.length}`);
       core.info(`Diff length: ${prContext.diff.length} characters`);
+
+      core.setOutput('pr_context', formattedContext);
 
       // TODO: Invoke takt WorkflowEngine with PR context
       // TODO: Parse review output and post inline comments (#2)

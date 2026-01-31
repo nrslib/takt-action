@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { isTaktMention, extractInstruction } from '../context.js';
+import { isTaktMention, extractInstruction, formatPrContext } from '../context.js';
+import type { PrContext } from '../context.js';
 import { parseReviewOutput } from '../review.js';
 
 describe('isTaktMention', () => {
@@ -41,6 +42,64 @@ describe('extractInstruction', () => {
 
   it('handles @takt in the middle of text', () => {
     expect(extractInstruction('hey @takt please review')).toBe('hey  please review');
+  });
+});
+
+describe('formatPrContext', () => {
+  const basePrContext: PrContext = {
+    owner: 'nrslib',
+    repo: 'takt-action',
+    prNumber: 123,
+    title: 'ログイン機能を追加',
+    body: 'ログイン機能の実装です。',
+    diff: 'diff --git a/src/auth/login.ts b/src/auth/login.ts\n+export function login() {}',
+    changedFiles: ['src/auth/login.ts', 'src/auth/login.test.ts'],
+  };
+
+  it('formats a complete PR context as structured Markdown', () => {
+    const result = formatPrContext(basePrContext);
+
+    expect(result).toContain('## PR #123: ログイン機能を追加');
+    expect(result).toContain('ログイン機能の実装です。');
+    expect(result).toContain('### 変更ファイル');
+    expect(result).toContain('- src/auth/login.ts');
+    expect(result).toContain('- src/auth/login.test.ts');
+    expect(result).toContain('### Diff');
+    expect(result).toContain('diff --git a/src/auth/login.ts b/src/auth/login.ts');
+  });
+
+  it('omits body section when body is empty', () => {
+    const ctx: PrContext = { ...basePrContext, body: '' };
+    const result = formatPrContext(ctx);
+
+    expect(result).toContain('## PR #123: ログイン機能を追加');
+    expect(result).toContain('### 変更ファイル');
+    // body が空の場合、body セクションが含まれない
+    const lines = result.split('\n');
+    const headerIndex = lines.findIndex((l) => l.startsWith('## PR #'));
+    const changedFilesIndex = lines.findIndex((l) => l === '### 変更ファイル');
+    // header の直後（空行を挟んで）が変更ファイルセクション
+    expect(changedFilesIndex).toBe(headerIndex + 2);
+  });
+
+  it('lists all changed files', () => {
+    const ctx: PrContext = {
+      ...basePrContext,
+      changedFiles: ['a.ts', 'b.ts', 'c.ts'],
+    };
+    const result = formatPrContext(ctx);
+
+    expect(result).toContain('- a.ts');
+    expect(result).toContain('- b.ts');
+    expect(result).toContain('- c.ts');
+  });
+
+  it('includes diff content at the end', () => {
+    const result = formatPrContext(basePrContext);
+    const diffSection = result.split('### Diff\n')[1];
+
+    expect(diffSection).toBeDefined();
+    expect(diffSection).toContain('+export function login() {}');
   });
 });
 

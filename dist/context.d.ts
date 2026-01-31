@@ -6,6 +6,7 @@ export interface PrContext {
     title: string;
     body: string;
     diff: string;
+    changedFiles: string[];
 }
 export interface CommentContext {
     owner: string;
@@ -28,6 +29,10 @@ export declare function resolvePrNumber(inputPrNumber?: string): number | undefi
  */
 export declare function fetchPrDiff(prNumber: number): Promise<string>;
 /**
+ * Fetch the list of changed files in a PR using the GitHub CLI.
+ */
+export declare function fetchChangedFiles(prNumber: number): Promise<string[]>;
+/**
  * Fetch PR metadata (title, body) using the GitHub CLI.
  */
 export declare function fetchPrMetadata(prNumber: number): Promise<{
@@ -38,6 +43,10 @@ export declare function fetchPrMetadata(prNumber: number): Promise<{
  * Build a full PR context for the review agent.
  */
 export declare function buildPrContext(prNumber: number): Promise<PrContext>;
+/**
+ * Format a PrContext into a structured Markdown string for the review agent.
+ */
+export declare function formatPrContext(ctx: PrContext): string;
 /**
  * Check if a comment body contains a @takt mention.
  */

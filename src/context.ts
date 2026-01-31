@@ -10,6 +10,7 @@ export interface PrContext {
   title: string;
   body: string;
   diff: string;
+  changedFiles: string[];
 }
 
 export interface CommentContext {
@@ -75,6 +76,24 @@ export async function fetchPrDiff(prNumber: number): Promise<string> {
 }
 
 /**
+ * Fetch the list of changed files in a PR using the GitHub CLI.
+ */
+export async function fetchChangedFiles(prNumber: number): Promise<string[]> {
+  let output = '';
+  await exec.exec('gh', ['pr', 'diff', String(prNumber), '--name-only'], {
+    listeners: {
+      stdout: (data: Buffer) => {
+        output += data.toString();
+      },
+    },
+  });
+  return output
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+/**
  * Fetch PR metadata (title, body) using the GitHub CLI.
  */
 export async function fetchPrMetadata(prNumber: number): Promise<{ title: string; body: string }> {
@@ -95,9 +114,10 @@ export async function fetchPrMetadata(prNumber: number): Promise<{ title: string
  */
 export async function buildPrContext(prNumber: number): Promise<PrContext> {
   const { owner, repo } = github.context.repo;
-  const [metadata, diff] = await Promise.all([
+  const [metadata, diff, changedFiles] = await Promise.all([
     fetchPrMetadata(prNumber),
     fetchPrDiff(prNumber),
+    fetchChangedFiles(prNumber),
   ]);
 
   return {
@@ -107,7 +127,34 @@ export async function buildPrContext(prNumber: number): Promise<PrContext> {
     title: metadata.title,
     body: metadata.body,
     diff,
+    changedFiles,
   };
+}
+
+/**
+ * Format a PrContext into a structured Markdown string for the review agent.
+ */
+export function formatPrContext(ctx: PrContext): string {
+  const lines: string[] = [];
+
+  lines.push(`## PR #${ctx.prNumber}: ${ctx.title}`);
+  lines.push('');
+
+  if (ctx.body) {
+    lines.push(ctx.body);
+    lines.push('');
+  }
+
+  lines.push('### 変更ファイル');
+  for (const file of ctx.changedFiles) {
+    lines.push(`- ${file}`);
+  }
+  lines.push('');
+
+  lines.push('### Diff');
+  lines.push(ctx.diff);
+
+  return lines.join('\n');
 }
 
 const TAKT_MENTION_PATTERN = /@takt\b/i;
