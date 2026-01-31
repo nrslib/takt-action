@@ -8,3 +8,4 @@ export { resolvePrNumber, buildPrContext, formatPrContext, buildCommentContext }
 export type { PrContext, CommentContext } from './pr-context.js';
 export { buildIssueCommentContext, buildIssueTaskContent } from './issue-context.js';
 export type { IssueCommentContext } from './issue-context.js';
+//# sourceMappingURL=context.d.ts.map

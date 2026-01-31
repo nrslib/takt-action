@@ -3,3 +3,9 @@
  * Checks if takt is already available before installing.
  */
 export declare function ensureTaktInstalled(): Promise<void>;
+/**
+ * Authenticate gh CLI with a GitHub token if not already logged in.
+ * This is required because the action uses gh to fetch PR metadata/diffs.
+ */
+export declare function ensureGitHubCliAuthenticated(githubToken: string): Promise<void>;
+//# sourceMappingURL=setup.d.ts.map

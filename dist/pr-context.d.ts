@@ -49,3 +49,4 @@ export declare function formatPrContext(ctx: PrContext): string;
  * Returns a CommentContext only when the comment is on a pull request.
  */
 export declare function buildCommentContext(): CommentContext | undefined;
+//# sourceMappingURL=pr-context.d.ts.map

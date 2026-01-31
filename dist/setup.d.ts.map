@@ -1,1 +1,1 @@
-{"version":3,"file":"","sourceRoot":"","sources":["file:///Users/m_naruse/work/git/takt-action/src/setup.ts"],"names":[],"mappings":"AAGA;;;GAGG;AACH,wBAAsB,mBAAmB,IAAI,OAAO,CAAC,IAAI,CAAC,CAWzD"}
+{"version":3,"file":"setup.d.ts","sourceRoot":"","sources":["../src/setup.ts"],"names":[],"mappings":"AAGA;;;GAGG;AACH,wBAAsB,mBAAmB,IAAI,OAAO,CAAC,IAAI,CAAC,CASzD;AAED;;;GAGG;AACH,wBAAsB,4BAA4B,CAAC,WAAW,EAAE,MAAM,GAAG,OAAO,CAAC,IAAI,CAAC,CAyBrF"}
