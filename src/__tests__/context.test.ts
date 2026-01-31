@@ -1,6 +1,14 @@
-import { describe, it, expect } from 'vitest';
-import { isTaktMention, extractInstruction, formatPrContext } from '../context.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { isTaktMention, extractInstruction, formatPrContext, buildIssueCommentContext, buildCommentContext } from '../context.js';
 import type { PrContext } from '../context.js';
+import * as github from '@actions/github';
+
+vi.mock('@actions/github', () => ({
+  context: {
+    payload: {},
+    repo: { owner: 'test-owner', repo: 'test-repo' },
+  },
+}));
 
 describe('isTaktMention', () => {
   it('returns true when comment contains @takt', () => {
@@ -100,5 +108,131 @@ describe('formatPrContext', () => {
 
     expect(diffSection).toBeDefined();
     expect(diffSection).toContain('+export function login() {}');
+  });
+});
+
+describe('buildIssueCommentContext', () => {
+  function setPayload(payload: Record<string, unknown>) {
+    Object.assign(github.context, { payload });
+  }
+
+  afterEach(() => {
+    setPayload({});
+  });
+
+  it('returns IssueCommentContext for an issue comment with @takt mention', () => {
+    setPayload({
+      comment: { id: 100, body: '@takt help me with this' },
+      issue: { number: 42, title: 'Bug report', body: 'Something is broken' },
+    });
+
+    const result = buildIssueCommentContext();
+
+    expect(result).toEqual({
+      owner: 'test-owner',
+      repo: 'test-repo',
+      issueNumber: 42,
+      commentBody: '@takt help me with this',
+      commentId: 100,
+      isTaktMention: true,
+      issueTitle: 'Bug report',
+      issueBody: 'Something is broken',
+    });
+  });
+
+  it('returns IssueCommentContext with isTaktMention false when no @takt mention', () => {
+    setPayload({
+      comment: { id: 101, body: 'just a regular comment' },
+      issue: { number: 10, title: 'Feature request', body: 'Add dark mode' },
+    });
+
+    const result = buildIssueCommentContext();
+
+    expect(result).toBeDefined();
+    expect(result!.isTaktMention).toBe(false);
+    expect(result!.issueNumber).toBe(10);
+  });
+
+  it('returns undefined when comment is on a pull request', () => {
+    setPayload({
+      comment: { id: 102, body: '@takt review this' },
+      issue: { number: 5, title: 'PR title', body: 'PR body', pull_request: { url: 'https://...' } },
+    });
+
+    const result = buildIssueCommentContext();
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined when comment is missing', () => {
+    setPayload({
+      issue: { number: 1, title: 'No comment', body: '' },
+    });
+
+    const result = buildIssueCommentContext();
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined when issue is missing', () => {
+    setPayload({
+      comment: { id: 103, body: '@takt do something' },
+    });
+
+    const result = buildIssueCommentContext();
+
+    expect(result).toBeUndefined();
+  });
+
+  it('handles empty issue body', () => {
+    setPayload({
+      comment: { id: 104, body: '@takt fix this' },
+      issue: { number: 20, title: 'Minimal issue', body: '' },
+    });
+
+    const result = buildIssueCommentContext();
+
+    expect(result).toBeDefined();
+    expect(result!.issueBody).toBe('');
+    expect(result!.issueTitle).toBe('Minimal issue');
+  });
+});
+
+describe('buildCommentContext', () => {
+  function setPayload(payload: Record<string, unknown>) {
+    Object.assign(github.context, { payload });
+  }
+
+  afterEach(() => {
+    setPayload({});
+  });
+
+  it('returns CommentContext for a PR comment', () => {
+    setPayload({
+      comment: { id: 200, body: '@takt review please' },
+      issue: { number: 7, pull_request: { url: 'https://...' } },
+    });
+
+    const result = buildCommentContext();
+
+    expect(result).toEqual({
+      owner: 'test-owner',
+      repo: 'test-repo',
+      prNumber: 7,
+      commentBody: '@takt review please',
+      commentId: 200,
+      isTaktMention: true,
+    });
+  });
+
+  it('returns undefined for an issue comment (no pull_request)', () => {
+    setPayload({
+      comment: { id: 201, body: '@takt help' },
+      issue: { number: 3, title: 'Issue', body: 'body' },
+    });
+
+    const result = buildCommentContext();
+
+    expect(result).toBeUndefined();
   });
 });

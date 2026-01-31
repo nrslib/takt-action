@@ -17,6 +17,16 @@ export interface CommentContext {
     commentId: number;
     isTaktMention: boolean;
 }
+export interface IssueCommentContext {
+    owner: string;
+    repo: string;
+    issueNumber: number;
+    commentBody: string;
+    commentId: number;
+    isTaktMention: boolean;
+    issueTitle: string;
+    issueBody: string;
+}
 /**
  * Detect the event type from the GitHub Actions context.
  */
@@ -60,6 +70,12 @@ export declare function isTaktMention(commentBody: string): boolean;
 export declare function extractInstruction(commentBody: string): string;
 /**
  * Build a comment context from the issue_comment event payload.
+ * Returns a CommentContext only when the comment is on a pull request.
  */
 export declare function buildCommentContext(): CommentContext | undefined;
+/**
+ * Build an issue comment context from the issue_comment event payload.
+ * Returns an IssueCommentContext only when the comment is on an issue (not a PR).
+ */
+export declare function buildIssueCommentContext(): IssueCommentContext | undefined;
 //# sourceMappingURL=context.d.ts.map

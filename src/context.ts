@@ -23,6 +23,17 @@ export interface CommentContext {
   isTaktMention: boolean;
 }
 
+export interface IssueCommentContext {
+  owner: string;
+  repo: string;
+  issueNumber: number;
+  commentBody: string;
+  commentId: number;
+  isTaktMention: boolean;
+  issueTitle: string;
+  issueBody: string;
+}
+
 /**
  * Detect the event type from the GitHub Actions context.
  */
@@ -178,6 +189,7 @@ export function extractInstruction(commentBody: string): string {
 
 /**
  * Build a comment context from the issue_comment event payload.
+ * Returns a CommentContext only when the comment is on a pull request.
  */
 export function buildCommentContext(): CommentContext | undefined {
   const payload = github.context.payload;
@@ -198,5 +210,34 @@ export function buildCommentContext(): CommentContext | undefined {
     commentBody,
     commentId: comment.id as number,
     isTaktMention: isTaktMention(commentBody),
+  };
+}
+
+/**
+ * Build an issue comment context from the issue_comment event payload.
+ * Returns an IssueCommentContext only when the comment is on an issue (not a PR).
+ */
+export function buildIssueCommentContext(): IssueCommentContext | undefined {
+  const payload = github.context.payload;
+  const comment = payload.comment;
+  const issue = payload.issue;
+
+  // PR コメントの場合は対象外
+  if (!comment || !issue || issue.pull_request) {
+    return undefined;
+  }
+
+  const { owner, repo } = github.context.repo;
+  const commentBody = comment.body as string;
+
+  return {
+    owner,
+    repo,
+    issueNumber: issue.number as number,
+    commentBody,
+    commentId: comment.id as number,
+    isTaktMention: isTaktMention(commentBody),
+    issueTitle: issue.title as string,
+    issueBody: (issue.body as string | null) ?? '',
   };
 }

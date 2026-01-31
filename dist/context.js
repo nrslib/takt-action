@@ -135,6 +135,7 @@ export function extractInstruction(commentBody) {
 }
 /**
  * Build a comment context from the issue_comment event payload.
+ * Returns a CommentContext only when the comment is on a pull request.
  */
 export function buildCommentContext() {
     const payload = github.context.payload;
@@ -152,6 +153,31 @@ export function buildCommentContext() {
         commentBody,
         commentId: comment.id,
         isTaktMention: isTaktMention(commentBody),
+    };
+}
+/**
+ * Build an issue comment context from the issue_comment event payload.
+ * Returns an IssueCommentContext only when the comment is on an issue (not a PR).
+ */
+export function buildIssueCommentContext() {
+    const payload = github.context.payload;
+    const comment = payload.comment;
+    const issue = payload.issue;
+    // PR コメントの場合は対象外
+    if (!comment || !issue || issue.pull_request) {
+        return undefined;
+    }
+    const { owner, repo } = github.context.repo;
+    const commentBody = comment.body;
+    return {
+        owner,
+        repo,
+        issueNumber: issue.number,
+        commentBody,
+        commentId: comment.id,
+        isTaktMention: isTaktMention(commentBody),
+        issueTitle: issue.title,
+        issueBody: issue.body ?? '',
     };
 }
 //# sourceMappingURL=context.js.map

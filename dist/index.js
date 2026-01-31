@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { detectEventType, resolvePrNumber, buildPrContext, formatPrContext, buildCommentContext } from './context.js';
+import { detectEventType, resolvePrNumber, buildPrContext, formatPrContext, buildCommentContext, buildIssueCommentContext, } from './context.js';
 async function run() {
     const eventType = detectEventType();
     const anthropicApiKey = core.getInput('anthropic_api_key', { required: true });
@@ -32,19 +32,34 @@ async function run() {
             break;
         }
         case 'issue_comment': {
+            // PR コメントの場合
             const commentContext = buildCommentContext();
-            if (!commentContext) {
-                core.info('Comment is not on a pull request. Skipping.');
-                return;
+            if (commentContext) {
+                if (!commentContext.isTaktMention) {
+                    core.info('Comment does not mention @takt. Skipping.');
+                    return;
+                }
+                core.info(`Processing @takt mention on PR #${commentContext.prNumber}`);
+                core.info(`Comment: ${commentContext.commentBody}`);
+                // TODO: Invoke takt WorkflowEngine with comment context (#4, #5)
+                core.info('Interactive review workflow execution is not yet implemented.');
+                break;
             }
-            if (!commentContext.isTaktMention) {
-                core.info('Comment does not mention @takt. Skipping.');
-                return;
+            // Issue コメントの場合
+            const issueCommentContext = buildIssueCommentContext();
+            if (issueCommentContext) {
+                if (!issueCommentContext.isTaktMention) {
+                    core.info('Comment does not mention @takt. Skipping.');
+                    return;
+                }
+                core.info(`Processing @takt mention on Issue #${issueCommentContext.issueNumber}`);
+                core.info(`Issue: ${issueCommentContext.issueTitle}`);
+                core.info(`Comment: ${issueCommentContext.commentBody}`);
+                // TODO: Invoke takt WorkflowEngine with issue comment context and post result as issue comment
+                core.info('Issue comment workflow execution is not yet implemented.');
+                break;
             }
-            core.info(`Processing @takt mention on PR #${commentContext.prNumber}`);
-            core.info(`Comment: ${commentContext.commentBody}`);
-            // TODO: Invoke takt WorkflowEngine with comment context (#4, #5)
-            core.info('Interactive review workflow execution is not yet implemented.');
+            core.info('Could not build context from issue_comment event. Skipping.');
             break;
         }
         default:
