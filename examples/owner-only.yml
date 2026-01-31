@@ -1,0 +1,35 @@
+# Owner-Only @takt Execution
+#
+# Restricts @takt execution to repository owner only.
+# Prevents unauthorized API usage and cost control.
+#
+# Uncomment MEMBER or COLLABORATOR lines to allow:
+# - MEMBER: Organization members
+# - COLLABORATOR: Explicitly invited collaborators
+
+name: TAKT (Owner Only)
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  takt:
+    if: |
+      contains(github.event.comment.body, '@takt') &&
+      github.event.comment.author_association == 'OWNER'
+      # Uncomment to allow organization members:
+      # || github.event.comment.author_association == 'MEMBER'
+      # Uncomment to allow collaborators:
+      # || github.event.comment.author_association == 'COLLABORATOR'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nrslib/takt-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
