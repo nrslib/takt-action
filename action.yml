@@ -25,10 +25,6 @@ inputs:
     description: 'Post review results as PR inline comments'
     required: false
     default: 'true'
-  model:
-    description: 'Claude model to use (e.g. sonnet, opus, haiku)'
-    required: false
-    default: 'sonnet'
 
 runs:
   using: 'node20'

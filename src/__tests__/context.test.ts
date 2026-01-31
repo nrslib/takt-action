@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { isTaktMention, extractInstruction, formatPrContext, buildIssueCommentContext, buildCommentContext } from '../context.js';
-import type { PrContext } from '../context.js';
+import { isTaktMention, formatPrContext, buildIssueCommentContext, buildIssueTaskContent, buildCommentContext, parseSubcommand } from '../context.js';
+import type { PrContext, IssueCommentContext } from '../context.js';
 import * as github from '@actions/github';
 
 vi.mock('@actions/github', () => ({
@@ -31,24 +31,6 @@ describe('isTaktMention', () => {
 
   it('returns true when @takt is at the end', () => {
     expect(isTaktMention('hey @takt')).toBe(true);
-  });
-});
-
-describe('extractInstruction', () => {
-  it('extracts instruction after @takt mention', () => {
-    expect(extractInstruction('@takt fix the login bug')).toBe('fix the login bug');
-  });
-
-  it('handles @takt at the beginning with extra spaces', () => {
-    expect(extractInstruction('@takt   add error handling')).toBe('add error handling');
-  });
-
-  it('returns empty string when only @takt is present', () => {
-    expect(extractInstruction('@takt')).toBe('');
-  });
-
-  it('handles @takt in the middle of text', () => {
-    expect(extractInstruction('hey @takt please review')).toBe('hey  please review');
   });
 });
 
@@ -234,5 +216,86 @@ describe('buildCommentContext', () => {
     const result = buildCommentContext();
 
     expect(result).toBeUndefined();
+  });
+});
+
+describe('parseSubcommand', () => {
+  it('parses "@takt run" as run command with no workflow', () => {
+    const result = parseSubcommand('@takt run');
+    expect(result).toEqual({ command: 'run', workflow: undefined, instruction: '' });
+  });
+
+  it('parses "@takt run default" as run command with workflow', () => {
+    const result = parseSubcommand('@takt run default');
+    expect(result).toEqual({ command: 'run', workflow: 'default', instruction: '' });
+  });
+
+  it('parses "@takt run review extra instruction" as run with workflow and instruction', () => {
+    const result = parseSubcommand('@takt run review extra instruction');
+    expect(result).toEqual({ command: 'run', workflow: 'review', instruction: 'extra instruction' });
+  });
+
+  it('parses "@takt something else" as unknown command', () => {
+    const result = parseSubcommand('@takt something else');
+    expect(result).toEqual({ command: 'unknown', instruction: 'something else' });
+  });
+
+  it('is case-insensitive for @takt', () => {
+    const result = parseSubcommand('@TAKT run');
+    expect(result).toEqual({ command: 'run', workflow: undefined, instruction: '' });
+  });
+
+  it('is case-insensitive for run subcommand', () => {
+    const result = parseSubcommand('@takt RUN default');
+    expect(result).toEqual({ command: 'run', workflow: 'default', instruction: '' });
+  });
+
+  it('handles only @takt with no further text', () => {
+    const result = parseSubcommand('@takt');
+    expect(result).toEqual({ command: 'unknown', instruction: '' });
+  });
+});
+
+describe('buildIssueTaskContent', () => {
+  const baseCtx: IssueCommentContext = {
+    owner: 'test-owner',
+    repo: 'test-repo',
+    issueNumber: 42,
+    commentBody: '@takt run',
+    commentId: 100,
+    isTaktMention: true,
+    issueTitle: 'Bug report',
+    issueBody: 'Something is broken',
+  };
+
+  it('includes issue number and title', () => {
+    const result = buildIssueTaskContent(baseCtx, '');
+    expect(result).toContain('## Issue #42: Bug report');
+  });
+
+  it('includes issue body', () => {
+    const result = buildIssueTaskContent(baseCtx, '');
+    expect(result).toContain('Something is broken');
+  });
+
+  it('includes instruction when provided', () => {
+    const result = buildIssueTaskContent(baseCtx, 'fix it fast');
+    expect(result).toContain('## 追加指示');
+    expect(result).toContain('fix it fast');
+  });
+
+  it('omits instruction section when instruction is empty', () => {
+    const result = buildIssueTaskContent(baseCtx, '');
+    expect(result).not.toContain('## 追加指示');
+  });
+
+  it('omits body when issue body is empty', () => {
+    const ctx = { ...baseCtx, issueBody: '' };
+    const result = buildIssueTaskContent(ctx, '');
+    const lines = result.split('\n');
+    // Title line followed by empty line, no body content between
+    expect(lines[0]).toBe('## Issue #42: Bug report');
+    expect(lines[1]).toBe('');
+    expect(lines.length).toBe(2);
   });
 });

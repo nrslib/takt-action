@@ -2,22 +2,12 @@
 
 Thank you for your interest in contributing to TAKT Action!
 
-## Important Notice
+## About This Project
 
-For now, This project is maintained at my own pace as a personal project. Please understand the following before contributing:
+This project is developed using [TAKT](https://github.com/nrslib/takt). Please understand the following before contributing:
 
-### Response Times
-
-- **Issues**: I may not be able to respond immediately. Please be patient.
-- **Pull Requests**: Review capacity is limited. Small, focused PRs are more likely to be reviewed.
-
-### About This Project
-
-This project is primarily developed using "vibe coding" (AI-assisted development). As such:
-
-- **Use at your own risk** - The codebase may have unconventional patterns
-- **Large PRs are difficult to review** - Especially AI-generated ones
 - **Small, focused changes are preferred** - Bug fixes, typo corrections, documentation improvements
+- **Large PRs are difficult to review** - Especially AI-generated bulk changes without explanation
 
 ## How to Contribute
 

@@ -1,5 +1,7 @@
 import * as core from '@actions/core';
-import { detectEventType, resolvePrNumber, buildPrContext, formatPrContext, buildCommentContext, buildIssueCommentContext, } from './context.js';
+import { detectEventType, resolvePrNumber, buildPrContext, formatPrContext, buildCommentContext, buildIssueCommentContext, buildIssueTaskContent, parseSubcommand, } from './context.js';
+import { runTakt, formatRunResult } from './runner.js';
+import { postIssueComment } from './comment.js';
 async function run() {
     const eventType = detectEventType();
     const anthropicApiKey = core.getInput('anthropic_api_key', { required: true });
@@ -7,12 +9,10 @@ async function run() {
     const workflow = core.getInput('workflow');
     const inputPrNumber = core.getInput('pr_number');
     const postReview = core.getInput('post_review') === 'true';
-    const model = core.getInput('model');
     core.setSecret(anthropicApiKey);
     core.setSecret(githubToken);
     core.info(`Event type: ${eventType}`);
     core.info(`Workflow: ${workflow}`);
-    core.info(`Model: ${model}`);
     core.info(`Post review: ${postReview}`);
     switch (eventType) {
         case 'pull_request': {
@@ -55,8 +55,25 @@ async function run() {
                 core.info(`Processing @takt mention on Issue #${issueCommentContext.issueNumber}`);
                 core.info(`Issue: ${issueCommentContext.issueTitle}`);
                 core.info(`Comment: ${issueCommentContext.commentBody}`);
-                // TODO: Invoke takt WorkflowEngine with issue comment context and post result as issue comment
-                core.info('Issue comment workflow execution is not yet implemented.');
+                const command = parseSubcommand(issueCommentContext.commentBody);
+                if (command.command !== 'run') {
+                    core.info(`Unknown subcommand: "${command.command}". Only "run" is supported.`);
+                    break;
+                }
+                const selectedWorkflow = command.workflow ?? workflow;
+                const taskContent = buildIssueTaskContent(issueCommentContext, command.instruction);
+                core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
+                const result = await runTakt({
+                    task: taskContent,
+                    workflow: selectedWorkflow,
+                    anthropicApiKey,
+                });
+                core.info(`takt exited with code ${result.exitCode}`);
+                const commentBody = formatRunResult(result, selectedWorkflow);
+                await postIssueComment(githubToken, issueCommentContext.owner, issueCommentContext.repo, issueCommentContext.issueNumber, commentBody);
+                if (result.exitCode !== 0) {
+                    core.setFailed(`takt workflow failed with exit code ${result.exitCode}`);
+                }
                 break;
             }
             core.info('Could not build context from issue_comment event. Skipping.');

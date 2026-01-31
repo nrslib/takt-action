@@ -4,8 +4,6 @@
 
 AI-powered PR review and task automation GitHub Action using [TAKT](https://github.com/nrslib/takt).
 
-> **Note**: This project is developed at my own pace. See [Disclaimer](#disclaimer) for details.
-
 ## Quick Start
 
 ### PR Review on Pull Request
@@ -92,7 +90,6 @@ jobs:
 | `workflow` | No | `review` | TAKT workflow to execute |
 | `pr_number` | No | (auto-detect) | Pull request number |
 | `post_review` | No | `true` | Post review results as PR inline comments |
-| `model` | No | `sonnet` | Claude model to use |
 
 ## Supported Events
 
@@ -111,17 +108,9 @@ jobs:
 | [#4](https://github.com/nrslib/takt-action/issues/4) | Interactive review via @takt mention | 🔨 In progress |
 | [#5](https://github.com/nrslib/takt-action/issues/5) | Code changes from PR comments | 🔨 In progress |
 
-## Disclaimer
+## Contributing
 
-This project is a personal project developed at my own pace.
-
-- **Response times**: I may not be able to respond to issues immediately
-- **Development style**: This project is primarily developed using "vibe coding" (AI-assisted development) - **use at your own risk**
-- **Pull requests**:
-  - Small, focused PRs (bug fixes, typos, docs) are welcome
-  - Large PRs, especially AI-generated bulk changes, are difficult to review
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for more details.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
 ## License
 
