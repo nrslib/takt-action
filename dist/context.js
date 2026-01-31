@@ -68,7 +68,7 @@ export async function fetchChangedFiles(prNumber) {
  */
 export async function fetchPrMetadata(prNumber) {
     let output = '';
-    await exec.exec('gh', ['pr', 'view', String(prNumber), '--json', 'title,body'], {
+    await exec.exec('gh', ['pr', 'view', String(prNumber), '--json', 'title,body,headRefOid'], {
         listeners: {
             stdout: (data) => {
                 output += data.toString();
@@ -76,7 +76,7 @@ export async function fetchPrMetadata(prNumber) {
         },
     });
     const parsed = JSON.parse(output);
-    return { title: parsed.title, body: parsed.body };
+    return { title: parsed.title, body: parsed.body, headSha: parsed.headRefOid };
 }
 /**
  * Build a full PR context for the review agent.
@@ -92,6 +92,7 @@ export async function buildPrContext(prNumber) {
         owner,
         repo,
         prNumber,
+        headSha: metadata.headSha,
         title: metadata.title,
         body: metadata.body,
         diff,

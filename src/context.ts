@@ -7,6 +7,7 @@ export interface PrContext {
   owner: string;
   repo: string;
   prNumber: number;
+  headSha: string;
   title: string;
   body: string;
   diff: string;
@@ -96,17 +97,17 @@ export async function fetchChangedFiles(prNumber: number): Promise<string[]> {
 /**
  * Fetch PR metadata (title, body) using the GitHub CLI.
  */
-export async function fetchPrMetadata(prNumber: number): Promise<{ title: string; body: string }> {
+export async function fetchPrMetadata(prNumber: number): Promise<{ title: string; body: string; headSha: string }> {
   let output = '';
-  await exec.exec('gh', ['pr', 'view', String(prNumber), '--json', 'title,body'], {
+  await exec.exec('gh', ['pr', 'view', String(prNumber), '--json', 'title,body,headRefOid'], {
     listeners: {
       stdout: (data: Buffer) => {
         output += data.toString();
       },
     },
   });
-  const parsed = JSON.parse(output) as { title: string; body: string };
-  return { title: parsed.title, body: parsed.body };
+  const parsed = JSON.parse(output) as { title: string; body: string; headRefOid: string };
+  return { title: parsed.title, body: parsed.body, headSha: parsed.headRefOid };
 }
 
 /**
@@ -124,6 +125,7 @@ export async function buildPrContext(prNumber: number): Promise<PrContext> {
     owner,
     repo,
     prNumber,
+    headSha: metadata.headSha,
     title: metadata.title,
     body: metadata.body,
     diff,

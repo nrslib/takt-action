@@ -3,11 +3,13 @@ import { detectEventType, resolvePrNumber, buildPrContext, formatPrContext, buil
 async function run() {
     const eventType = detectEventType();
     const anthropicApiKey = core.getInput('anthropic_api_key', { required: true });
+    const githubToken = core.getInput('github_token', { required: true });
     const workflow = core.getInput('workflow');
     const inputPrNumber = core.getInput('pr_number');
     const postReview = core.getInput('post_review') === 'true';
     const model = core.getInput('model');
     core.setSecret(anthropicApiKey);
+    core.setSecret(githubToken);
     core.info(`Event type: ${eventType}`);
     core.info(`Workflow: ${workflow}`);
     core.info(`Model: ${model}`);
@@ -26,9 +28,7 @@ async function run() {
             core.info(`Changed files: ${prContext.changedFiles.length}`);
             core.info(`Diff length: ${prContext.diff.length} characters`);
             core.setOutput('pr_context', formattedContext);
-            // TODO: Invoke takt WorkflowEngine with PR context
-            // TODO: Parse review output and post inline comments (#2)
-            core.info('PR review workflow execution is not yet implemented.');
+            // TODO: Invoke takt WorkflowEngine with PR context and post review comments (#2)
             break;
         }
         case 'issue_comment': {

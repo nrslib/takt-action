@@ -3,6 +3,7 @@ export interface PrContext {
     owner: string;
     repo: string;
     prNumber: number;
+    headSha: string;
     title: string;
     body: string;
     diff: string;
@@ -38,6 +39,7 @@ export declare function fetchChangedFiles(prNumber: number): Promise<string[]>;
 export declare function fetchPrMetadata(prNumber: number): Promise<{
     title: string;
     body: string;
+    headSha: string;
 }>;
 /**
  * Build a full PR context for the review agent.

@@ -68,6 +68,7 @@ export async function postReviewComments(
     comments: comments.map((c) => ({
       path: c.path,
       line: c.line,
+      side: 'RIGHT' as const,
       body: c.body,
     })),
   });

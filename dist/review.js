@@ -47,6 +47,7 @@ export async function postReviewComments(token, owner, repo, prNumber, commitSha
         comments: comments.map((c) => ({
             path: c.path,
             line: c.line,
+            side: 'RIGHT',
             body: c.body,
         })),
     });

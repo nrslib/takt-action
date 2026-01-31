@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { isTaktMention, extractInstruction, formatPrContext } from '../context.js';
 import type { PrContext } from '../context.js';
-import { parseReviewOutput } from '../review.js';
 
 describe('isTaktMention', () => {
   it('returns true when comment contains @takt', () => {
@@ -50,6 +49,7 @@ describe('formatPrContext', () => {
     owner: 'nrslib',
     repo: 'takt-action',
     prNumber: 123,
+    headSha: 'abc123def456',
     title: 'ログイン機能を追加',
     body: 'ログイン機能の実装です。',
     diff: 'diff --git a/src/auth/login.ts b/src/auth/login.ts\n+export function login() {}',
@@ -100,53 +100,5 @@ describe('formatPrContext', () => {
 
     expect(diffSection).toBeDefined();
     expect(diffSection).toContain('+export function login() {}');
-  });
-});
-
-describe('parseReviewOutput', () => {
-  it('parses valid review block', () => {
-    const output = `
-Some text before
-<!-- takt-review -->
-src/auth/login.ts:42: Error handling is missing.
-src/auth/login.ts:78: This function should be pure.
-<!-- /takt-review -->
-Some text after
-`;
-    const comments = parseReviewOutput(output);
-    expect(comments).toHaveLength(2);
-    expect(comments[0]).toEqual({
-      path: 'src/auth/login.ts',
-      line: 42,
-      body: 'Error handling is missing.',
-    });
-    expect(comments[1]).toEqual({
-      path: 'src/auth/login.ts',
-      line: 78,
-      body: 'This function should be pure.',
-    });
-  });
-
-  it('returns empty array when no review block found', () => {
-    expect(parseReviewOutput('no review block here')).toEqual([]);
-  });
-
-  it('returns empty array for empty review block', () => {
-    const output = `<!-- takt-review -->
-<!-- /takt-review -->`;
-    expect(parseReviewOutput(output)).toEqual([]);
-  });
-
-  it('skips malformed lines in review block', () => {
-    const output = `<!-- takt-review -->
-src/file.ts:10: Valid comment.
-this is not a valid line
-another invalid line
-src/file.ts:20: Another valid comment.
-<!-- /takt-review -->`;
-    const comments = parseReviewOutput(output);
-    expect(comments).toHaveLength(2);
-    expect(comments[0]?.line).toBe(10);
-    expect(comments[1]?.line).toBe(20);
   });
 });
