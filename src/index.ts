@@ -11,6 +11,7 @@ import {
 } from './context.js';
 import { runTakt, formatRunResult } from './runner.js';
 import { postIssueComment } from './comment.js';
+import { ensureTaktInstalled } from './setup.js';
 
 async function run(): Promise<void> {
   const eventType = detectEventType();
@@ -90,6 +91,8 @@ async function run(): Promise<void> {
         const taskContent = buildIssueTaskContent(issueCommentContext, command.instruction);
 
         core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
+
+        await ensureTaktInstalled();
 
         const result = await runTakt({
           task: taskContent,

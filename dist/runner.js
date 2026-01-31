@@ -1,16 +1,17 @@
 import * as exec from '@actions/exec';
 /**
- * Execute a takt workflow via CLI using npx.
+ * Execute a takt workflow via CLI.
  * Uses --task and --skip-git for non-interactive pipeline execution.
+ * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 export async function runTakt(options) {
-    const args = ['takt', '--task', options.task, '--skip-git'];
+    const args = ['--task', options.task, '--skip-git'];
     if (options.workflow) {
         args.push('--workflow', options.workflow);
     }
     let stdout = '';
     let stderr = '';
-    const exitCode = await exec.exec('npx', args, {
+    const exitCode = await exec.exec('takt', args, {
         env: {
             ...process.env,
             ANTHROPIC_API_KEY: options.anthropicApiKey,
