@@ -31741,7 +31741,7 @@ function parseSubcommand(commentBody) {
         workflowToken = firstToken;
         idx = 1;
     }
-    const valueOptions = new Set(['workflow', 'model', 'provider']);
+    const valueOptions = new Set(['workflow', 'model', 'provider', 'create-worktree']);
     while (idx < tokens.length) {
         const token = tokens[idx];
         if (!token) {
@@ -31975,6 +31975,7 @@ function buildIssueTaskContent(ctx, instruction) {
 
 ;// CONCATENATED MODULE: ./src/runner.ts
 
+
 /**
  * Execute a takt workflow via CLI.
  * Uses --issue for GitHub issue context and --auto-pr for PR creation.
@@ -31995,7 +31996,7 @@ async function runTakt(options) {
         args.push('--provider', options.provider);
     }
     if (options.createWorktree) {
-        args.push('--create-worktree');
+        args.push('--create-worktree', options.createWorktree);
     }
     let stdout = '';
     let stderr = '';
@@ -32008,12 +32009,21 @@ async function runTakt(options) {
         env,
         listeners: {
             stdout: (data) => {
-                stdout += data.toString();
+                const text = data.toString();
+                stdout += text;
+                if (options.logOutput) {
+                    core.info(text.trimEnd());
+                }
             },
             stderr: (data) => {
-                stderr += data.toString();
+                const text = data.toString();
+                stderr += text;
+                if (options.logOutput) {
+                    core.error(text.trimEnd());
+                }
             },
         },
+        silent: !options.logOutput,
         ignoreReturnCode: true,
     });
     return { exitCode, stdout, stderr };
@@ -32151,6 +32161,7 @@ async function run() {
     const openaiApiKey = core.getInput('openai_api_key');
     const githubToken = core.getInput('github_token', { required: true });
     const workflow = core.getInput('workflow');
+    const logOutput = core.getInput('log_output') === 'true';
     const model = core.getInput('model');
     const provider = core.getInput('provider') || 'claude';
     const inputPrNumber = core.getInput('pr_number');
@@ -32225,26 +32236,34 @@ async function run() {
                 const selectedWorkflow = commandWorkflow ?? workflow;
                 const selectedModel = command.options.model ?? model;
                 const selectedProvider = command.options.provider ?? provider;
-                const shouldCreateWorktree = command.options['create-worktree'] === 'true';
-                core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
-                await ensureTaktInstalled();
-                const result = await runTakt({
-                    issueNumber: issueCommentContext.issueNumber,
-                    repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,
-                    autoPr: true,
-                    workflow: selectedWorkflow,
-                    model: selectedModel || undefined,
-                    provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
-                    anthropicApiKey: anthropicApiKey || undefined,
-                    openaiApiKey: openaiApiKey || undefined,
-                    createWorktree: shouldCreateWorktree,
+                const createWorktreeOption = command.options['create-worktree'];
+                const createWorktreeValue = createWorktreeOption === 'no'
+                    ? 'no'
+                    : createWorktreeOption === 'yes' || createWorktreeOption === 'true'
+                        ? 'yes'
+                        : undefined;
+                await core.group(`#${issueCommentContext.issueNumber}: Running takt workflow "${selectedWorkflow}"`, async () => {
+                    core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
+                    await ensureTaktInstalled();
+                    const result = await runTakt({
+                        issueNumber: issueCommentContext.issueNumber,
+                        repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,
+                        autoPr: true,
+                        workflow: selectedWorkflow,
+                        model: selectedModel || undefined,
+                        provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
+                        anthropicApiKey: anthropicApiKey || undefined,
+                        openaiApiKey: openaiApiKey || undefined,
+                        createWorktree: createWorktreeValue ?? 'no',
+                        logOutput,
+                    });
+                    core.info(`takt exited with code ${result.exitCode}`);
+                    const commentBody = formatRunResult(result, selectedWorkflow);
+                    await postIssueComment(githubToken, issueCommentContext.owner, issueCommentContext.repo, issueCommentContext.issueNumber, commentBody);
+                    if (result.exitCode !== 0) {
+                        core.setFailed(`takt workflow failed with exit code ${result.exitCode}`);
+                    }
                 });
-                core.info(`takt exited with code ${result.exitCode}`);
-                const commentBody = formatRunResult(result, selectedWorkflow);
-                await postIssueComment(githubToken, issueCommentContext.owner, issueCommentContext.repo, issueCommentContext.issueNumber, commentBody);
-                if (result.exitCode !== 0) {
-                    core.setFailed(`takt workflow failed with exit code ${result.exitCode}`);
-                }
                 break;
             }
             core.info('Could not build context from issue_comment event. Skipping.');

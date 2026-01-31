@@ -44,7 +44,7 @@ export function parseSubcommand(commentBody) {
         workflowToken = firstToken;
         idx = 1;
     }
-    const valueOptions = new Set(['workflow', 'model', 'provider']);
+    const valueOptions = new Set(['workflow', 'model', 'provider', 'create-worktree']);
     while (idx < tokens.length) {
         const token = tokens[idx];
         if (!token) {

@@ -7,7 +7,8 @@ export interface TaktRunOptions {
     autoPr: boolean;
     anthropicApiKey?: string;
     openaiApiKey?: string;
-    createWorktree?: boolean;
+    createWorktree?: 'yes' | 'no';
+    logOutput?: boolean;
 }
 export interface TaktRunResult {
     exitCode: number;

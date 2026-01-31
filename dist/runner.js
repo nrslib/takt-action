@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 /**
  * Execute a takt workflow via CLI.
@@ -19,7 +20,7 @@ export async function runTakt(options) {
         args.push('--provider', options.provider);
     }
     if (options.createWorktree) {
-        args.push('--create-worktree');
+        args.push('--create-worktree', options.createWorktree);
     }
     let stdout = '';
     let stderr = '';
@@ -32,12 +33,21 @@ export async function runTakt(options) {
         env,
         listeners: {
             stdout: (data) => {
-                stdout += data.toString();
+                const text = data.toString();
+                stdout += text;
+                if (options.logOutput) {
+                    core.info(text.trimEnd());
+                }
             },
             stderr: (data) => {
-                stderr += data.toString();
+                const text = data.toString();
+                stderr += text;
+                if (options.logOutput) {
+                    core.error(text.trimEnd());
+                }
             },
         },
+        silent: !options.logOutput,
         ignoreReturnCode: true,
     });
     return { exitCode, stdout, stderr };

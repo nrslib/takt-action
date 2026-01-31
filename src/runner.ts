@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
 export interface TaktRunOptions {
@@ -9,7 +10,8 @@ export interface TaktRunOptions {
   autoPr: boolean;
   anthropicApiKey?: string;
   openaiApiKey?: string;
-  createWorktree?: boolean;
+  createWorktree?: 'yes' | 'no';
+  logOutput?: boolean;
 }
 
 export interface TaktRunResult {
@@ -43,7 +45,7 @@ export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
   }
 
   if (options.createWorktree) {
-    args.push('--create-worktree');
+    args.push('--create-worktree', options.createWorktree);
   }
 
   let stdout = '';
@@ -59,12 +61,21 @@ export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
     env,
     listeners: {
       stdout: (data: Buffer) => {
-        stdout += data.toString();
+        const text = data.toString();
+        stdout += text;
+        if (options.logOutput) {
+          core.info(text.trimEnd());
+        }
       },
       stderr: (data: Buffer) => {
-        stderr += data.toString();
+        const text = data.toString();
+        stderr += text;
+        if (options.logOutput) {
+          core.error(text.trimEnd());
+        }
       },
     },
+    silent: !options.logOutput,
     ignoreReturnCode: true,
   });
 

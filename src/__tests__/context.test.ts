@@ -309,8 +309,18 @@ describe('parseSubcommand', () => {
     expect(result).toEqual({
       command: 'run',
       workflow: undefined,
-      instruction: 'provide diff',
-      options: { 'create-worktree': 'true' },
+      instruction: 'diff',
+      options: { 'create-worktree': 'provide' },
+    });
+  });
+
+  it('parses @takt run --create-worktree no comment', () => {
+    const result = parseSubcommand('@takt run --create-worktree no comment');
+    expect(result).toEqual({
+      command: 'run',
+      workflow: undefined,
+      instruction: 'comment',
+      options: { 'create-worktree': 'no' },
     });
   });
 });
