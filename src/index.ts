@@ -6,7 +6,6 @@ import {
   formatPrContext,
   buildCommentContext,
   buildIssueCommentContext,
-  buildIssueTaskContent,
   parseSubcommand,
 } from './context.js';
 import { runTakt, formatRunResult } from './runner.js';
@@ -104,14 +103,15 @@ async function run(): Promise<void> {
         }
 
         const selectedWorkflow = command.workflow ?? workflow;
-        const taskContent = buildIssueTaskContent(issueCommentContext, command.instruction);
 
         core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
 
         await ensureTaktInstalled();
 
         const result = await runTakt({
-          task: taskContent,
+          issueNumber: issueCommentContext.issueNumber,
+          repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,
+          autoPr: true,
           workflow: selectedWorkflow,
           model: model || undefined,
           provider: provider !== 'claude' ? provider : undefined,

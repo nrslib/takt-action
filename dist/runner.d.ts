@@ -1,8 +1,10 @@
 export interface TaktRunOptions {
-    task: string;
+    issueNumber: number;
     workflow?: string;
     model?: string;
     provider?: string;
+    repo: string;
+    autoPr: boolean;
     anthropicApiKey?: string;
     openaiApiKey?: string;
 }
@@ -13,7 +15,7 @@ export interface TaktRunResult {
 }
 /**
  * Execute a takt workflow via CLI.
- * Uses --task and --skip-git for non-interactive pipeline execution.
+ * Uses --issue for GitHub issue context and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 export declare function runTakt(options: TaktRunOptions): Promise<TaktRunResult>;

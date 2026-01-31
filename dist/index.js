@@ -31932,11 +31932,14 @@ function buildIssueTaskContent(ctx, instruction) {
 
 /**
  * Execute a takt workflow via CLI.
- * Uses --task and --skip-git for non-interactive pipeline execution.
+ * Uses --issue for GitHub issue context and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 async function runTakt(options) {
-    const args = ['--task', options.task, '--skip-git'];
+    const args = ['--issue', String(options.issueNumber), '--repo', options.repo];
+    if (options.autoPr) {
+        args.push('--auto-pr');
+    }
     if (options.workflow) {
         args.push('--workflow', options.workflow);
     }
@@ -32129,11 +32132,12 @@ async function run() {
                     break;
                 }
                 const selectedWorkflow = command.workflow ?? workflow;
-                const taskContent = buildIssueTaskContent(issueCommentContext, command.instruction);
                 core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
                 await ensureTaktInstalled();
                 const result = await runTakt({
-                    task: taskContent,
+                    issueNumber: issueCommentContext.issueNumber,
+                    repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,
+                    autoPr: true,
                     workflow: selectedWorkflow,
                     model: model || undefined,
                     provider: provider !== 'claude' ? provider : undefined,

@@ -1,10 +1,12 @@
 import * as exec from '@actions/exec';
 
 export interface TaktRunOptions {
-  task: string;
+  issueNumber: number;
   workflow?: string;
   model?: string;
   provider?: string;
+  repo: string;
+  autoPr: boolean;
   anthropicApiKey?: string;
   openaiApiKey?: string;
 }
@@ -17,11 +19,15 @@ export interface TaktRunResult {
 
 /**
  * Execute a takt workflow via CLI.
- * Uses --task and --skip-git for non-interactive pipeline execution.
+ * Uses --issue for GitHub issue context and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
-  const args = ['--task', options.task, '--skip-git'];
+  const args = ['--issue', String(options.issueNumber), '--repo', options.repo];
+
+  if (options.autoPr) {
+    args.push('--auto-pr');
+  }
 
   if (options.workflow) {
     args.push('--workflow', options.workflow);
