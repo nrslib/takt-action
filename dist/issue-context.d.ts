@@ -17,4 +17,3 @@ export declare function buildIssueCommentContext(): IssueCommentContext | undefi
  * Build a task content string from an Issue context for takt execution.
  */
 export declare function buildIssueTaskContent(ctx: IssueCommentContext, instruction: string): string;
-//# sourceMappingURL=issue-context.d.ts.map

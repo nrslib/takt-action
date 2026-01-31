@@ -23,4 +23,3 @@ export declare function runTakt(options: TaktRunOptions): Promise<TaktRunResult>
  * Format takt execution result into a Markdown string suitable for an Issue comment.
  */
 export declare function formatRunResult(result: TaktRunResult, workflow: string): string;
-//# sourceMappingURL=runner.d.ts.map

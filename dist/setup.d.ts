@@ -8,4 +8,3 @@ export declare function ensureTaktInstalled(): Promise<void>;
  * This is required because the action uses gh to fetch PR metadata/diffs.
  */
 export declare function ensureGitHubCliAuthenticated(githubToken: string): Promise<void>;
-//# sourceMappingURL=setup.d.ts.map

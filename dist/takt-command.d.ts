@@ -17,4 +17,3 @@ export declare function isTaktMention(commentBody: string): boolean;
  * Supports: "@takt run", "@takt run <workflow>", "@takt <instruction>"
  */
 export declare function parseSubcommand(commentBody: string): TaktCommand;
-//# sourceMappingURL=takt-command.d.ts.map
