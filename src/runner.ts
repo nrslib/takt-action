@@ -9,6 +9,7 @@ export interface TaktRunOptions {
   autoPr: boolean;
   anthropicApiKey?: string;
   openaiApiKey?: string;
+  createWorktree?: boolean;
 }
 
 export interface TaktRunResult {
@@ -39,6 +40,10 @@ export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
 
   if (options.provider) {
     args.push('--provider', options.provider);
+  }
+
+  if (options.createWorktree) {
+    args.push('--create-worktree');
   }
 
   let stdout = '';

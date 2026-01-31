@@ -108,6 +108,7 @@ async function run(): Promise<void> {
         const selectedWorkflow = commandWorkflow ?? workflow;
         const selectedModel = command.options.model ?? model;
         const selectedProvider = command.options.provider ?? provider;
+        const shouldCreateWorktree = command.options['create-worktree'] === 'true';
 
         core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
 
@@ -122,6 +123,7 @@ async function run(): Promise<void> {
           provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
           anthropicApiKey: anthropicApiKey || undefined,
           openaiApiKey: openaiApiKey || undefined,
+          createWorktree: shouldCreateWorktree,
         });
 
         core.info(`takt exited with code ${result.exitCode}`);

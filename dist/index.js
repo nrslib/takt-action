@@ -31741,20 +31741,32 @@ function parseSubcommand(commentBody) {
         workflowToken = firstToken;
         idx = 1;
     }
+    const valueOptions = new Set(['workflow', 'model', 'provider']);
     while (idx < tokens.length) {
         const token = tokens[idx];
         if (!token) {
-            break;
+            idx++;
+            continue;
         }
         if (token.startsWith('--')) {
             const key = token.slice(2).toLowerCase();
+            if (!key) {
+                idx++;
+                continue;
+            }
             const next = tokens[idx + 1];
-            if (!key || !next || next.startsWith('--')) {
+            const expectsValue = valueOptions.has(key);
+            if (expectsValue) {
+                if (next && !next.startsWith('--')) {
+                    options[key] = next;
+                    idx += 2;
+                    continue;
+                }
                 instruction = tokens.slice(idx).join(' ');
                 break;
             }
-            options[key] = next;
-            idx += 2;
+            options[key] = 'true';
+            idx++;
             continue;
         }
         instruction = tokens.slice(idx).join(' ');
@@ -31981,6 +31993,9 @@ async function runTakt(options) {
     }
     if (options.provider) {
         args.push('--provider', options.provider);
+    }
+    if (options.createWorktree) {
+        args.push('--create-worktree');
     }
     let stdout = '';
     let stderr = '';
@@ -32210,6 +32225,7 @@ async function run() {
                 const selectedWorkflow = commandWorkflow ?? workflow;
                 const selectedModel = command.options.model ?? model;
                 const selectedProvider = command.options.provider ?? provider;
+                const shouldCreateWorktree = command.options['create-worktree'] === 'true';
                 core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
                 await ensureTaktInstalled();
                 const result = await runTakt({
@@ -32221,6 +32237,7 @@ async function run() {
                     provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
                     anthropicApiKey: anthropicApiKey || undefined,
                     openaiApiKey: openaiApiKey || undefined,
+                    createWorktree: shouldCreateWorktree,
                 });
                 core.info(`takt exited with code ${result.exitCode}`);
                 const commentBody = formatRunResult(result, selectedWorkflow);

@@ -18,6 +18,9 @@ export async function runTakt(options) {
     if (options.provider) {
         args.push('--provider', options.provider);
     }
+    if (options.createWorktree) {
+        args.push('--create-worktree');
+    }
     let stdout = '';
     let stderr = '';
     const env = {

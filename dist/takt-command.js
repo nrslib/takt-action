@@ -44,20 +44,32 @@ export function parseSubcommand(commentBody) {
         workflowToken = firstToken;
         idx = 1;
     }
+    const valueOptions = new Set(['workflow', 'model', 'provider']);
     while (idx < tokens.length) {
         const token = tokens[idx];
         if (!token) {
-            break;
+            idx++;
+            continue;
         }
         if (token.startsWith('--')) {
             const key = token.slice(2).toLowerCase();
+            if (!key) {
+                idx++;
+                continue;
+            }
             const next = tokens[idx + 1];
-            if (!key || !next || next.startsWith('--')) {
+            const expectsValue = valueOptions.has(key);
+            if (expectsValue) {
+                if (next && !next.startsWith('--')) {
+                    options[key] = next;
+                    idx += 2;
+                    continue;
+                }
                 instruction = tokens.slice(idx).join(' ');
                 break;
             }
-            options[key] = next;
-            idx += 2;
+            options[key] = 'true';
+            idx++;
             continue;
         }
         instruction = tokens.slice(idx).join(' ');

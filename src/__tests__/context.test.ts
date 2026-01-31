@@ -303,6 +303,16 @@ describe('parseSubcommand', () => {
       options: { model: 'sonnet', provider: 'codex' },
     });
   });
+
+  it('parses @takt run --create-worktree with trailing instruction', () => {
+    const result = parseSubcommand('@takt run --create-worktree provide diff');
+    expect(result).toEqual({
+      command: 'run',
+      workflow: undefined,
+      instruction: 'provide diff',
+      options: { 'create-worktree': 'true' },
+    });
+  });
 });
 
 describe('buildIssueTaskContent', () => {
