@@ -30,3 +30,4 @@ coverage/
 
 # TAKT config (user data)
 .takt/
+takt-action-test/
