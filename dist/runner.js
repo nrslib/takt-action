@@ -19,8 +19,8 @@ export async function runTakt(options) {
     let stderr = '';
     const env = {
         ...process.env,
-        ...(options.anthropicApiKey && { ANTHROPIC_API_KEY: options.anthropicApiKey }),
-        ...(options.openaiApiKey && { OPENAI_API_KEY: options.openaiApiKey }),
+        ...(options.anthropicApiKey && { TAKT_ANTHROPIC_API_KEY: options.anthropicApiKey }),
+        ...(options.openaiApiKey && { TAKT_OPENAI_API_KEY: options.openaiApiKey }),
     };
     const exitCode = await exec.exec('takt', args, {
         env,
