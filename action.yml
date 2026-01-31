@@ -1,0 +1,35 @@
+name: 'TAKT Action'
+description: 'AI-powered PR review and task automation using TAKT'
+author: 'nrslib'
+
+branding:
+  icon: 'check-circle'
+  color: 'blue'
+
+inputs:
+  anthropic_api_key:
+    description: 'Anthropic API key for Claude'
+    required: true
+  github_token:
+    description: 'GitHub token for API access'
+    required: true
+    default: ${{ github.token }}
+  workflow:
+    description: 'TAKT workflow to execute (e.g. review, default)'
+    required: false
+    default: 'review'
+  pr_number:
+    description: 'Pull request number (auto-detected from event if not specified)'
+    required: false
+  post_review:
+    description: 'Post review results as PR inline comments'
+    required: false
+    default: 'true'
+  model:
+    description: 'Claude model to use (e.g. sonnet, opus, haiku)'
+    required: false
+    default: 'sonnet'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build output (TypeScript)
+# Note: dist/ is NOT ignored - it must be committed for GitHub Actions
+*.tgz
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.envrc
+
+# TAKT config (user data)
+.takt/

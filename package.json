@@ -1,0 +1,54 @@
+{
+  "name": "takt-action",
+  "version": "0.1.0",
+  "description": "GitHub Action for AI-powered PR review and task automation using TAKT",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "package": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "all": "npm run lint && npm run build && npm run test && npm run package"
+  },
+  "keywords": [
+    "github-action",
+    "takt",
+    "ai",
+    "pr-review",
+    "code-review",
+    "automation",
+    "anthropic",
+    "claude"
+  ],
+  "author": "nrslib <38722970+nrslib@users.noreply.github.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nrslib/takt-action.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nrslib/takt-action/issues"
+  },
+  "homepage": "https://github.com/nrslib/takt-action#readme",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "@actions/exec": "^1.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^20.14.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vercel/ncc": "^0.38.3",
+    "eslint": "^9.0.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.53.1",
+    "vitest": "^2.0.0"
+  }
+}
