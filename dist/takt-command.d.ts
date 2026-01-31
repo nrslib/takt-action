@@ -3,6 +3,7 @@ export interface TaktCommand {
     command: 'run' | 'unknown';
     workflow?: string;
     instruction: string;
+    options: Record<string, string>;
 }
 /**
  * Detect the event type from the GitHub Actions context.

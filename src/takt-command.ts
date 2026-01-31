@@ -6,6 +6,7 @@ export interface TaktCommand {
   command: 'run' | 'unknown';
   workflow?: string;
   instruction: string;
+  options: Record<string, string>;
 }
 
 const TAKT_MENTION_PATTERN = /@takt\b/i;
@@ -37,18 +38,57 @@ export function isTaktMention(commentBody: string): boolean {
  */
 export function parseSubcommand(commentBody: string): TaktCommand {
   const stripped = commentBody.replace(TAKT_MENTION_PATTERN, '').trim();
+  const runMatch = /^run\b/i.exec(stripped);
 
-  const runMatch = /^run(?:\s+(\S+))?(?:\s+(.*))?$/is.exec(stripped);
-  if (runMatch) {
+  if (!runMatch) {
     return {
-      command: 'run',
-      workflow: runMatch[1] || undefined,
-      instruction: runMatch[2]?.trim() || '',
+      command: 'unknown',
+      instruction: stripped,
+      options: {},
     };
   }
 
+  const remainder = stripped.slice(runMatch[0].length).trim();
+  const tokens = remainder.length > 0 ? remainder.split(/\s+/) : [];
+
+  const options: Record<string, string> = {};
+  let workflowToken: string | undefined;
+  let instruction = '';
+  let idx = 0;
+
+  const firstToken = tokens[0];
+  if (firstToken && !firstToken.startsWith('--')) {
+    workflowToken = firstToken;
+    idx = 1;
+  }
+
+  while (idx < tokens.length) {
+    const token = tokens[idx];
+    if (!token) {
+      break;
+    }
+    if (token.startsWith('--')) {
+      const key = token.slice(2).toLowerCase();
+      const next = tokens[idx + 1];
+      if (!key || !next || next.startsWith('--')) {
+        instruction = tokens.slice(idx).join(' ');
+        break;
+      }
+      options[key] = next;
+      idx += 2;
+      continue;
+    }
+
+    instruction = tokens.slice(idx).join(' ');
+    break;
+  }
+
+  const workflow = options.workflow ?? workflowToken;
+
   return {
-    command: 'unknown',
-    instruction: stripped,
+    command: 'run',
+    workflow,
+    instruction: instruction.trim(),
+    options,
   };
 }

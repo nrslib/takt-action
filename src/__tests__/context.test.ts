@@ -222,37 +222,86 @@ describe('buildCommentContext', () => {
 describe('parseSubcommand', () => {
   it('parses "@takt run" as run command with no workflow', () => {
     const result = parseSubcommand('@takt run');
-    expect(result).toEqual({ command: 'run', workflow: undefined, instruction: '' });
+    expect(result).toEqual({
+      command: 'run',
+      workflow: undefined,
+      instruction: '',
+      options: {},
+    });
   });
 
   it('parses "@takt run default" as run command with workflow', () => {
     const result = parseSubcommand('@takt run default');
-    expect(result).toEqual({ command: 'run', workflow: 'default', instruction: '' });
+    expect(result).toEqual({
+      command: 'run',
+      workflow: 'default',
+      instruction: '',
+      options: {},
+    });
   });
 
   it('parses "@takt run review extra instruction" as run with workflow and instruction', () => {
     const result = parseSubcommand('@takt run review extra instruction');
-    expect(result).toEqual({ command: 'run', workflow: 'review', instruction: 'extra instruction' });
+    expect(result).toEqual({
+      command: 'run',
+      workflow: 'review',
+      instruction: 'extra instruction',
+      options: {},
+    });
   });
 
   it('parses "@takt something else" as unknown command', () => {
     const result = parseSubcommand('@takt something else');
-    expect(result).toEqual({ command: 'unknown', instruction: 'something else' });
+    expect(result).toEqual({
+      command: 'unknown',
+      instruction: 'something else',
+      options: {},
+    });
   });
 
   it('is case-insensitive for @takt', () => {
     const result = parseSubcommand('@TAKT run');
-    expect(result).toEqual({ command: 'run', workflow: undefined, instruction: '' });
+    expect(result).toEqual({
+      command: 'run',
+      workflow: undefined,
+      instruction: '',
+      options: {},
+    });
   });
 
   it('is case-insensitive for run subcommand', () => {
     const result = parseSubcommand('@takt RUN default');
-    expect(result).toEqual({ command: 'run', workflow: 'default', instruction: '' });
+    expect(result).toEqual({
+      command: 'run',
+      workflow: 'default',
+      instruction: '',
+      options: {},
+    });
   });
 
   it('handles only @takt with no further text', () => {
     const result = parseSubcommand('@takt');
-    expect(result).toEqual({ command: 'unknown', instruction: '' });
+    expect(result).toEqual({ command: 'unknown', instruction: '', options: {} });
+  });
+
+  it('parses @takt run --workflow review', () => {
+    const result = parseSubcommand('@takt run --workflow review');
+    expect(result).toEqual({
+      command: 'run',
+      workflow: 'review',
+      instruction: '',
+      options: { workflow: 'review' },
+    });
+  });
+
+  it('parses @takt run review --model sonnet --provider codex add comments', () => {
+    const result = parseSubcommand('@takt run review --model sonnet --provider codex add comments');
+    expect(result).toEqual({
+      command: 'run',
+      workflow: 'review',
+      instruction: 'add comments',
+      options: { model: 'sonnet', provider: 'codex' },
+    });
   });
 });
 

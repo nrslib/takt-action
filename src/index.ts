@@ -104,7 +104,10 @@ async function run(): Promise<void> {
           break;
         }
 
-        const selectedWorkflow = command.workflow ?? workflow;
+        const commandWorkflow = command.workflow ?? command.options.workflow;
+        const selectedWorkflow = commandWorkflow ?? workflow;
+        const selectedModel = command.options.model ?? model;
+        const selectedProvider = command.options.provider ?? provider;
 
         core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
 
@@ -115,8 +118,8 @@ async function run(): Promise<void> {
           repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,
           autoPr: true,
           workflow: selectedWorkflow,
-          model: model || undefined,
-          provider: provider !== 'claude' ? provider : undefined,
+          model: selectedModel || undefined,
+          provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
           anthropicApiKey: anthropicApiKey || undefined,
           openaiApiKey: openaiApiKey || undefined,
         });
