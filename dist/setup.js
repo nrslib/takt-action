@@ -66,4 +66,36 @@ export async function ensureGitHubCliAuthenticated(githubToken) {
     core.info('gh CLI authenticated');
     process.env.GH_TOKEN = githubToken;
 }
+/**
+ * Configure git user for commits in GitHub Actions environment.
+ * Uses GITHUB_ACTOR from the GitHub Actions context.
+ */
+export async function configureGitUser() {
+    const actor = process.env.GITHUB_ACTOR || 'github-actions[bot]';
+    const email = `${actor}@users.noreply.github.com`;
+    core.info(`Configuring git user: ${actor}`);
+    await exec.exec('git', ['config', '--global', 'user.name', actor]);
+    await exec.exec('git', ['config', '--global', 'user.email', email]);
+    core.info('Git user configured');
+}
+/**
+ * Check if GitHub Actions has permission to create pull requests.
+ * This verifies the repository setting: "Allow GitHub Actions to create and approve pull requests"
+ */
+export async function checkPullRequestPermissions() {
+    core.info('Checking pull request permissions...');
+    try {
+        await exec.exec('gh', ['pr', 'list', '--limit', '1'], {
+            silent: true,
+            ignoreReturnCode: false
+        });
+        core.info('Pull request permissions verified');
+    }
+    catch {
+        core.warning('⚠️  GitHub Actions may not have permission to create PRs.\n' +
+            'If PR creation fails, please enable the following repository setting:\n' +
+            '  Settings > Actions > General > Workflow permissions >\n' +
+            '  ✓ Allow GitHub Actions to create and approve pull requests');
+    }
+}
 //# sourceMappingURL=setup.js.map

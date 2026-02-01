@@ -9,3 +9,8 @@ export declare function ensureTaktInstalled(version?: string): Promise<void>;
  * This is required because the action uses gh to fetch PR metadata/diffs.
  */
 export declare function ensureGitHubCliAuthenticated(githubToken: string): Promise<void>;
+/**
+ * Configure git user for commits in GitHub Actions environment.
+ * Uses GITHUB_ACTOR from the GitHub Actions context.
+ */
+export declare function configureGitUser(): Promise<void>;

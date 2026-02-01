@@ -32160,6 +32160,18 @@ async function ensureGitHubCliAuthenticated(githubToken) {
     core.info('gh CLI authenticated');
     process.env.GH_TOKEN = githubToken;
 }
+/**
+ * Configure git user for commits in GitHub Actions environment.
+ * Uses GITHUB_ACTOR from the GitHub Actions context.
+ */
+async function configureGitUser() {
+    const actor = process.env.GITHUB_ACTOR || 'github-actions[bot]';
+    const email = `${actor}@users.noreply.github.com`;
+    core.info(`Configuring git user: ${actor}`);
+    await exec.exec('git', ['config', '--global', 'user.name', actor]);
+    await exec.exec('git', ['config', '--global', 'user.email', email]);
+    core.info('Git user configured');
+}
 
 ;// CONCATENATED MODULE: ./src/index.ts
 
@@ -32194,6 +32206,7 @@ async function run() {
         core.setSecret(openaiApiKey);
     core.setSecret(githubToken);
     await ensureGitHubCliAuthenticated(githubToken);
+    await configureGitUser();
     core.info(`Event type: ${eventType}`);
     core.info(`Workflow: ${workflow}`);
     core.info(`Model: ${model || '(default)'}`);

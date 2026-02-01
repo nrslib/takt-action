@@ -21,8 +21,10 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Optional: Specify model (opus, sonnet, haiku)
-          # model: sonnet
+          # Optional: Specify model via variables
+          model: ${{ vars.TAKT_MODEL }}
+          # Optional: Enable detailed logs
+          log_output: ${{ vars.TAKT_LOG_OUTPUT || 'false' }}
           # For Codex provider:
           # provider: codex
           # openai_api_key: ${{ secrets.OPENAI_API_KEY }}

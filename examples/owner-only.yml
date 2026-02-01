@@ -13,9 +13,9 @@ on:
     types: [created]
 
 permissions:
-  contents: read
-  pull-requests: write
-  issues: write
+  contents: write        # Required for pushing code changes
+  pull-requests: write   # Required for PR comments
+  issues: write          # Required for issue comments
 
 jobs:
   takt:
@@ -32,8 +32,31 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Optional: Specify model (opus, sonnet, haiku)
-          # model: sonnet
+          # Optional: Specify model via variables
+          model: ${{ vars.TAKT_MODEL }}
+          # Optional: Enable detailed logs
+          log_output: ${{ vars.TAKT_LOG_OUTPUT || 'false' }}
           # For Codex provider:
           # provider: codex
           # openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+
+      # Optional: Slack notification
+      - name: Notify Slack
+        if: always()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "${{ job.status == 'success' && '✅' || '⚠️' }} TAKT ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*${{ job.status == 'success' && '✅' || '⚠️' }} TAKT ${{ job.status }}*\n<${{ github.event.issue.html_url }}|Issue #${{ github.event.issue.number }}>: ${{ github.event.issue.title }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>"
+                  }
+                }
+              ]
+            }

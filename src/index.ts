@@ -10,7 +10,7 @@ import {
 } from './context.js';
 import { runTakt, formatRunResult } from './runner.js';
 import { postIssueComment } from './comment.js';
-import { ensureTaktInstalled, ensureGitHubCliAuthenticated } from './setup.js';
+import { ensureTaktInstalled, ensureGitHubCliAuthenticated, configureGitUser } from './setup.js';
 
 async function run(): Promise<void> {
   const eventType = detectEventType();
@@ -41,6 +41,7 @@ async function run(): Promise<void> {
   core.setSecret(githubToken);
 
   await ensureGitHubCliAuthenticated(githubToken);
+  await configureGitUser();
 
   core.info(`Event type: ${eventType}`);
   core.info(`Workflow: ${workflow}`);

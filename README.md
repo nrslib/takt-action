@@ -38,12 +38,15 @@ on:
     types: [created]
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: write        # Required for pushing code changes
+  issues: write          # Required for posting comments
+  pull-requests: write   # Required for PR comments
 
 jobs:
   interactive:
-    if: contains(github.event.comment.body, '@takt')
+    if: |
+      contains(github.event.comment.body, '@takt') &&
+      github.event.comment.author_association == 'OWNER'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,6 +54,8 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          model: ${{ vars.TAKT_MODEL }}
+          log_output: ${{ vars.TAKT_LOG_OUTPUT || 'false' }}
 ```
 
 ### Combined Workflow
@@ -64,14 +69,17 @@ on:
     types: [created]
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: write        # Required for pushing code changes
+  issues: write          # Required for posting comments
+  pull-requests: write   # Required for PR comments
 
 jobs:
   takt:
-    if: >
+    if: |
       github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@takt'))
+      (github.event_name == 'issue_comment' &&
+       contains(github.event.comment.body, '@takt') &&
+       github.event.comment.author_association == 'OWNER')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,6 +87,28 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          model: ${{ vars.TAKT_MODEL }}
+          log_output: ${{ vars.TAKT_LOG_OUTPUT || 'false' }}
+
+      # Optional: Slack notification
+      - name: Notify Slack
+        if: always()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "${{ job.status == 'success' && '✅' || '⚠️' }} TAKT ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*${{ job.status == 'success' && '✅' || '⚠️' }} TAKT ${{ job.status }}*\n${{ github.event.pull_request && format('<{0}|PR #{1}>', github.event.pull_request.html_url, github.event.pull_request.number) || format('<{0}|Issue #{1}>', github.event.issue.html_url, github.event.issue.number) }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>"
+                  }
+                }
+              ]
+            }
 ```
 
 ## Inputs
@@ -88,11 +118,13 @@ jobs:
 | `anthropic_api_key` | Conditional | - | Anthropic API key (required when provider is claude) |
 | `openai_api_key` | Conditional | - | OpenAI API key (required when provider is codex) |
 | `github_token` | Yes | `${{ github.token }}` | GitHub token for API access |
-| `workflow` | No | `review` | TAKT workflow to execute |
+| `workflow` | No | `default` | TAKT workflow to execute |
 | `model` | No | (default) | Model to use (opus, sonnet, haiku, etc.) |
 | `provider` | No | `claude` | Provider to use (claude or codex) |
 | `pr_number` | No | (auto-detect) | Pull request number |
 | `post_review` | No | `true` | Post review results as PR inline comments |
+| `log_output` | No | `false` | Enable detailed takt CLI logs in GitHub Actions |
+| `takt_version` | No | `latest` | TAKT CLI version (`latest` for npm stable, `git` for repository HEAD) |
 
 ## Supported Events
 

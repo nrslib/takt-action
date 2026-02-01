@@ -69,3 +69,17 @@ export async function ensureGitHubCliAuthenticated(githubToken: string): Promise
   core.info('gh CLI authenticated');
   process.env.GH_TOKEN = githubToken;
 }
+
+/**
+ * Configure git user for commits in GitHub Actions environment.
+ * Uses GITHUB_ACTOR from the GitHub Actions context.
+ */
+export async function configureGitUser(): Promise<void> {
+  const actor = process.env.GITHUB_ACTOR || 'github-actions[bot]';
+  const email = `${actor}@users.noreply.github.com`;
+
+  core.info(`Configuring git user: ${actor}`);
+  await exec.exec('git', ['config', '--global', 'user.name', actor]);
+  await exec.exec('git', ['config', '--global', 'user.email', email]);
+  core.info('Git user configured');
+}
