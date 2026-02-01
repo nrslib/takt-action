@@ -26,7 +26,7 @@ export interface TaktRunResult {
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
-  const args = ['--pipeline', '--issue', String(options.issueNumber), '--repo', options.repo];
+  const args = ['--pipeline', '--quiet', '--issue', String(options.issueNumber), '--repo', options.repo];
 
   if (options.autoPr) {
     args.push('--auto-pr');

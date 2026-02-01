@@ -31983,7 +31983,7 @@ function buildIssueTaskContent(ctx, instruction) {
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 async function runTakt(options) {
-    const args = ['--pipeline', '--issue', String(options.issueNumber), '--repo', options.repo];
+    const args = ['--pipeline', '--quiet', '--issue', String(options.issueNumber), '--repo', options.repo];
     if (options.autoPr) {
         args.push('--auto-pr');
     }
