@@ -2,6 +2,21 @@
 
 [TAKT](https://github.com/nrslib/takt) を使った AI による PR レビュー・タスク自動化 GitHub Action。
 
+## セットアップ
+
+### 必須のリポジトリ設定
+
+このアクションで PR を作成するには、以下のリポジトリ設定を有効化してください：
+
+1. **Settings** → **Actions** → **General** に移動
+2. **Workflow permissions** で以下にチェック：
+   - ✅ **Allow GitHub Actions to create and approve pull requests**
+3. **Save** をクリック
+
+**直接リンク**: `https://github.com/OWNER/REPO/settings/actions`
+
+> **注意**: この設定がない場合、アクションはワークフローを実行できますが PR を作成できません。PR 作成時に権限エラーが表示されます。
+
 ## クイックスタート
 
 ### PR オープン時の自動レビュー

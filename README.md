@@ -4,6 +4,21 @@
 
 AI-powered PR review and task automation GitHub Action using [TAKT](https://github.com/nrslib/takt).
 
+## Setup
+
+### Required Repository Setting
+
+To allow this action to create pull requests, enable the following repository setting:
+
+1. Go to **Settings** → **Actions** → **General**
+2. Under **Workflow permissions**, check:
+   - ✅ **Allow GitHub Actions to create and approve pull requests**
+3. Click **Save**
+
+**Direct link**: `https://github.com/OWNER/REPO/settings/actions`
+
+> **Note**: Without this setting, the action can run workflows but cannot create pull requests. You'll see a permission error when attempting PR creation.
+
 ## Quick Start
 
 ### PR Review on Pull Request
