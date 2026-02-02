@@ -10,7 +10,7 @@ export interface TaktRunOptions {
   autoPr: boolean;
   anthropicApiKey?: string;
   openaiApiKey?: string;
-  logOutput?: boolean;
+  logLevel?: 'quiet' | 'detail' | 'none';
 }
 
 export interface TaktRunResult {
@@ -26,7 +26,13 @@ export interface TaktRunResult {
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
-  const args = ['--pipeline', '--quiet', '--issue', String(options.issueNumber), '--repo', options.repo];
+  const args = ['--pipeline', '--issue', String(options.issueNumber), '--repo', options.repo];
+
+  // Add --quiet flag unless log_level is 'detail'
+  const logLevel = options.logLevel || 'quiet';
+  if (logLevel === 'quiet') {
+    args.push('--quiet');
+  }
 
   if (options.autoPr) {
     args.push('--auto-pr');
@@ -56,25 +62,27 @@ export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
     ...(options.openaiApiKey && { TAKT_OPENAI_API_KEY: options.openaiApiKey }),
   };
 
+  const shouldLog = logLevel !== 'none';
+
   const exitCode = await exec.exec('takt', args, {
     env,
     listeners: {
       stdout: (data: Buffer) => {
         const text = data.toString();
         stdout += text;
-        if (options.logOutput) {
+        if (shouldLog) {
           core.info(text.trimEnd());
         }
       },
       stderr: (data: Buffer) => {
         const text = data.toString();
         stderr += text;
-        if (options.logOutput) {
+        if (shouldLog) {
           core.error(text.trimEnd());
         }
       },
     },
-    silent: !options.logOutput,
+    silent: !shouldLog,
     ignoreReturnCode: true,
   });
 

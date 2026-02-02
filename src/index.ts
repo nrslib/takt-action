@@ -19,7 +19,7 @@ async function run(): Promise<void> {
   const openaiApiKey = core.getInput('openai_api_key');
   const githubToken = core.getInput('github_token', { required: true });
   const workflow = core.getInput('workflow');
-  const logOutput = core.getInput('log_output') === 'true';
+  const logLevel = (core.getInput('log_level') || 'quiet') as 'quiet' | 'detail' | 'none';
   const model = core.getInput('model');
   const provider = core.getInput('provider') || 'claude';
   const inputPrNumber = core.getInput('pr_number');
@@ -128,7 +128,7 @@ async function run(): Promise<void> {
               provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
               anthropicApiKey: anthropicApiKey || undefined,
               openaiApiKey: openaiApiKey || undefined,
-              logOutput,
+              logLevel,
             });
 
             core.info(`takt exited with code ${result.exitCode}`);

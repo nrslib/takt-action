@@ -70,7 +70,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           model: ${{ vars.TAKT_MODEL }}
-          log_output: ${{ vars.TAKT_LOG_OUTPUT || 'false' }}
+          log_level: ${{ vars.TAKT_LOG_LEVEL || 'quiet' }}
 ```
 
 ### Combined Workflow
@@ -103,7 +103,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           model: ${{ vars.TAKT_MODEL }}
-          log_output: ${{ vars.TAKT_LOG_OUTPUT || 'false' }}
+          log_level: ${{ vars.TAKT_LOG_LEVEL || 'quiet' }}
 
       # Optional: Slack notification
       - name: Notify Slack
@@ -138,7 +138,7 @@ jobs:
 | `provider` | No | `claude` | Provider to use (claude or codex) |
 | `pr_number` | No | (auto-detect) | Pull request number |
 | `post_review` | No | `true` | Post review results as PR inline comments |
-| `log_output` | No | `false` | Enable detailed takt CLI logs in GitHub Actions |
+| `log_level` | No | `quiet` | Log level: `quiet` (minimal), `detail` (verbose), `none` (no output) |
 | `takt_version` | No | `latest` | TAKT CLI version (`latest` for npm stable, `git` for repository HEAD) |
 
 ## Supported Events

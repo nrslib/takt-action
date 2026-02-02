@@ -106,6 +106,8 @@ jobs:
 | `provider` | いいえ | `claude` | 使用するプロバイダー（claude または codex） |
 | `pr_number` | いいえ | (自動検出) | PR 番号 |
 | `post_review` | いいえ | `true` | レビュー結果を PR インラインコメントとして投稿 |
+| `log_level` | いいえ | `quiet` | ログレベル: `quiet`（最小限）、`detail`（詳細）、`none`（出力なし） |
+| `takt_version` | いいえ | `latest` | TAKT CLI バージョン（`latest`: npm 安定版、`git`: リポジトリ最新版） |
 
 ## 対応イベント
 

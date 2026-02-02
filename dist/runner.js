@@ -7,7 +7,12 @@ import * as exec from '@actions/exec';
  * Requires takt to be installed globally (see ensureTaktInstalled).
  */
 export async function runTakt(options) {
-    const args = ['--pipeline', '--quiet', '--issue', String(options.issueNumber), '--repo', options.repo];
+    const args = ['--pipeline', '--issue', String(options.issueNumber), '--repo', options.repo];
+    // Add --quiet flag unless log_level is 'detail'
+    const logLevel = options.logLevel || 'quiet';
+    if (logLevel === 'quiet') {
+        args.push('--quiet');
+    }
     if (options.autoPr) {
         args.push('--auto-pr');
     }
@@ -29,25 +34,26 @@ export async function runTakt(options) {
         ...(options.anthropicApiKey && { TAKT_ANTHROPIC_API_KEY: options.anthropicApiKey }),
         ...(options.openaiApiKey && { TAKT_OPENAI_API_KEY: options.openaiApiKey }),
     };
+    const shouldLog = logLevel !== 'none';
     const exitCode = await exec.exec('takt', args, {
         env,
         listeners: {
             stdout: (data) => {
                 const text = data.toString();
                 stdout += text;
-                if (options.logOutput) {
+                if (shouldLog) {
                     core.info(text.trimEnd());
                 }
             },
             stderr: (data) => {
                 const text = data.toString();
                 stderr += text;
-                if (options.logOutput) {
+                if (shouldLog) {
                     core.error(text.trimEnd());
                 }
             },
         },
-        silent: !options.logOutput,
+        silent: !shouldLog,
         ignoreReturnCode: true,
     });
     return { exitCode, stdout, stderr };

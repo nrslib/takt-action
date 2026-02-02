@@ -34,8 +34,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # Optional: Specify model via variables
           model: ${{ vars.TAKT_MODEL }}
-          # Optional: Enable detailed logs
-          log_output: ${{ vars.TAKT_LOG_OUTPUT || 'false' }}
+          # Optional: Log level (quiet: 最小限, detail: 詳細, none: 出力なし)
+          log_level: ${{ vars.TAKT_LOG_LEVEL || 'quiet' }}
           # For Codex provider:
           # provider: codex
           # openai_api_key: ${{ secrets.OPENAI_API_KEY }}

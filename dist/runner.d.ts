@@ -7,7 +7,7 @@ export interface TaktRunOptions {
     autoPr: boolean;
     anthropicApiKey?: string;
     openaiApiKey?: string;
-    logOutput?: boolean;
+    logLevel?: 'quiet' | 'detail' | 'none';
 }
 export interface TaktRunResult {
     exitCode: number;

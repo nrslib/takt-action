@@ -21,10 +21,10 @@ inputs:
     description: 'TAKT workflow to execute (e.g. review, default)'
     required: false
     default: 'default'
-  log_output:
-    description: 'true にすると takt CLI の詳細ログ（stdout/stderr）を GitHub Actions に流します'
+  log_level:
+    description: 'ログレベル: quiet (最小限), detail (詳細), none (出力なし)'
     required: false
-    default: 'false'
+    default: 'quiet'
   model:
     description: 'Model to use (e.g. opus, sonnet, haiku). Defaults to workflow/config setting.'
     required: false
