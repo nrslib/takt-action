@@ -18,7 +18,7 @@ async function run(): Promise<void> {
   const anthropicApiKey = core.getInput('anthropic_api_key');
   const openaiApiKey = core.getInput('openai_api_key');
   const githubToken = core.getInput('github_token', { required: true });
-  const workflow = core.getInput('workflow');
+  const piece = core.getInput('piece');
   const logLevel = (core.getInput('log_level') || 'quiet') as 'quiet' | 'detail' | 'none';
   const model = core.getInput('model');
   const provider = core.getInput('provider') || 'claude';
@@ -44,7 +44,7 @@ async function run(): Promise<void> {
   await configureGitUser();
 
   core.info(`Event type: ${eventType}`);
-  core.info(`Workflow: ${workflow}`);
+  core.info(`Piece: ${piece}`);
   core.info(`Model: ${model || '(default)'}`);
   core.info(`Provider: ${provider || '(default)'}`);
   core.info(`Post review: ${postReview}`);
@@ -84,7 +84,7 @@ async function run(): Promise<void> {
         core.info(`Comment: ${commentContext.commentBody}`);
 
         // TODO: Invoke takt WorkflowEngine with comment context (#4, #5)
-        core.info('Interactive review workflow execution is not yet implemented.');
+        core.info('Interactive review via PR comment is not yet implemented.');
         break;
       }
 
@@ -107,15 +107,15 @@ async function run(): Promise<void> {
           break;
         }
 
-        const commandWorkflow = command.workflow ?? command.options.workflow;
-        const selectedWorkflow = commandWorkflow ?? workflow;
+        const commandPiece = command.piece ?? command.options.piece;
+        const selectedPiece = commandPiece ?? piece;
         const selectedModel = command.options.model ?? model;
         const selectedProvider = command.options.provider ?? provider;
 
         await core.group(
-          `#${issueCommentContext.issueNumber}: Running takt workflow "${selectedWorkflow}"`,
+          `#${issueCommentContext.issueNumber}: Running takt piece "${selectedPiece}"`,
           async () => {
-            core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
+            core.info(`Running takt piece "${selectedPiece}" for Issue #${issueCommentContext.issueNumber}`);
 
             await ensureTaktInstalled(taktVersion);
 
@@ -123,7 +123,7 @@ async function run(): Promise<void> {
               issueNumber: issueCommentContext.issueNumber,
               repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,
               autoPr: true,
-              workflow: selectedWorkflow,
+              piece: selectedPiece,
               model: selectedModel || undefined,
               provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
               anthropicApiKey: anthropicApiKey || undefined,
@@ -133,7 +133,7 @@ async function run(): Promise<void> {
 
             core.info(`takt exited with code ${result.exitCode}`);
 
-            const commentBody = formatRunResult(result, selectedWorkflow);
+            const commentBody = formatRunResult(result, selectedPiece);
             await postIssueComment(
               githubToken,
               issueCommentContext.owner,
@@ -143,7 +143,7 @@ async function run(): Promise<void> {
             );
 
             if (result.exitCode !== 0) {
-              core.setFailed(`takt workflow failed with exit code ${result.exitCode}`);
+              core.setFailed(`takt piece failed with exit code ${result.exitCode}`);
             }
           },
         );

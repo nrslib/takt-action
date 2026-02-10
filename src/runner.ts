@@ -3,7 +3,7 @@ import * as exec from '@actions/exec';
 
 export interface TaktRunOptions {
   issueNumber: number;
-  workflow?: string;
+  piece?: string;
   model?: string;
   provider?: string;
   repo: string;
@@ -20,7 +20,7 @@ export interface TaktRunResult {
 }
 
 /**
- * Execute a takt workflow via CLI in pipeline mode.
+ * Execute a takt piece via CLI in pipeline mode.
  * Uses --pipeline for non-interactive execution, --issue for GitHub issue context,
  * and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
@@ -38,8 +38,8 @@ export async function runTakt(options: TaktRunOptions): Promise<TaktRunResult> {
     args.push('--auto-pr');
   }
 
-  if (options.workflow) {
-    args.push('--workflow', options.workflow);
+  if (options.piece) {
+    args.push('--piece', options.piece);
   }
 
   if (options.model) {
@@ -94,13 +94,13 @@ const MAX_COMMENT_LENGTH = 60000;
 /**
  * Format takt execution result into a Markdown string suitable for an Issue comment.
  */
-export function formatRunResult(result: TaktRunResult, workflow: string): string {
+export function formatRunResult(result: TaktRunResult, piece: string): string {
   const status = result.exitCode === 0 ? '✅ 完了' : '❌ 失敗';
   const lines: string[] = [];
 
   lines.push(`## TAKT ${status}`);
   lines.push('');
-  lines.push(`**Workflow**: \`${workflow}\``);
+  lines.push(`**Piece**: \`${piece}\``);
   lines.push('');
 
   if (result.stdout) {

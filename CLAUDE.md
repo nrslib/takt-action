@@ -25,13 +25,14 @@ action.yml (GitHub Action definition)
   → dist/index.js (ncc-bundled entrypoint)
     → src/index.ts (entrypoint)
       → src/context.ts (GitHub context helpers: PR diff, comment parsing)
+      → src/runner.ts (takt CLI execution)
       → src/review.ts (Review output parsing, PR comment posting)
 ```
 
 ### Event Flow
 
-1. **pull_request** (opened/synchronize) → Resolve PR number → Fetch diff → Run takt review workflow → Post inline comments
-2. **issue_comment** (created, `@takt` mention) → Parse comment → Run takt interactive workflow → Reply with results
+1. **pull_request** (opened/synchronize) → Resolve PR number → Fetch diff → Run takt review piece → Post inline comments
+2. **issue_comment** (created, `@takt` mention) → Parse comment → Run takt piece → Reply with results
 
 ## Directory Structure
 
@@ -61,6 +62,12 @@ takt-action/
 | #3 | GitHub App として配布 | Planned |
 | #4 | PR コメントでの対話的レビュー（@takt メンション） | Skeleton implemented |
 | #5 | PR コメントで追加指示→コード変更自動反映 | Skeleton implemented |
+
+## TAKT CLI Notes
+
+- takt v0.5.0+ で `--workflow` は `--piece` に統一
+- パイプラインモード: `takt --pipeline --issue <N> --piece <name> --repo <owner/repo>`
+- 主要オプション: `--piece`, `--model`, `--provider`, `--quiet`, `--auto-pr`, `--skip-git`
 
 ## TypeScript Notes
 

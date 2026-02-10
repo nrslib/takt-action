@@ -1,6 +1,6 @@
 {
   "name": "takt-action",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "GitHub Action for AI-powered PR review and task automation using TAKT",
   "main": "dist/index.js",
   "scripts": {

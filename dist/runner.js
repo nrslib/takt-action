@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 /**
- * Execute a takt workflow via CLI in pipeline mode.
+ * Execute a takt piece via CLI in pipeline mode.
  * Uses --pipeline for non-interactive execution, --issue for GitHub issue context,
  * and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
@@ -16,8 +16,8 @@ export async function runTakt(options) {
     if (options.autoPr) {
         args.push('--auto-pr');
     }
-    if (options.workflow) {
-        args.push('--workflow', options.workflow);
+    if (options.piece) {
+        args.push('--piece', options.piece);
     }
     if (options.model) {
         args.push('--model', options.model);
@@ -62,12 +62,12 @@ const MAX_COMMENT_LENGTH = 60000;
 /**
  * Format takt execution result into a Markdown string suitable for an Issue comment.
  */
-export function formatRunResult(result, workflow) {
+export function formatRunResult(result, piece) {
     const status = result.exitCode === 0 ? '✅ 完了' : '❌ 失敗';
     const lines = [];
     lines.push(`## TAKT ${status}`);
     lines.push('');
-    lines.push(`**Workflow**: \`${workflow}\``);
+    lines.push(`**Piece**: \`${piece}\``);
     lines.push('');
     if (result.stdout) {
         let output = result.stdout;

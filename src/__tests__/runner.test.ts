@@ -13,7 +13,7 @@ describe('formatRunResult', () => {
     const formatted = formatRunResult(result, 'review');
 
     expect(formatted).toContain('## TAKT ✅ 完了');
-    expect(formatted).toContain('**Workflow**: `review`');
+    expect(formatted).toContain('**Piece**: `review`');
     expect(formatted).toContain('Workflow completed successfully.');
   });
 
@@ -27,7 +27,7 @@ describe('formatRunResult', () => {
     const formatted = formatRunResult(result, 'default');
 
     expect(formatted).toContain('## TAKT ❌ 失敗');
-    expect(formatted).toContain('**Workflow**: `default`');
+    expect(formatted).toContain('**Piece**: `default`');
     expect(formatted).toContain('Partial output');
     expect(formatted).toContain('Error: something went wrong');
     expect(formatted).toContain('エラー出力');

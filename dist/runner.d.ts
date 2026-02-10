@@ -1,6 +1,6 @@
 export interface TaktRunOptions {
     issueNumber: number;
-    workflow?: string;
+    piece?: string;
     model?: string;
     provider?: string;
     repo: string;
@@ -15,7 +15,7 @@ export interface TaktRunResult {
     stderr: string;
 }
 /**
- * Execute a takt workflow via CLI in pipeline mode.
+ * Execute a takt piece via CLI in pipeline mode.
  * Uses --pipeline for non-interactive execution, --issue for GitHub issue context,
  * and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
@@ -24,4 +24,4 @@ export declare function runTakt(options: TaktRunOptions): Promise<TaktRunResult>
 /**
  * Format takt execution result into a Markdown string suitable for an Issue comment.
  */
-export declare function formatRunResult(result: TaktRunResult, workflow: string): string;
+export declare function formatRunResult(result: TaktRunResult, piece: string): string;

@@ -31718,7 +31718,7 @@ function isTaktMention(commentBody) {
 }
 /**
  * Parse a subcommand from a @takt mention comment.
- * Supports: "@takt run", "@takt run <workflow>", "@takt <instruction>"
+ * Supports: "@takt run", "@takt run <piece>", "@takt <instruction>"
  */
 function parseSubcommand(commentBody) {
     const stripped = commentBody.replace(TAKT_MENTION_PATTERN, '').trim();
@@ -31733,15 +31733,15 @@ function parseSubcommand(commentBody) {
     const remainder = stripped.slice(runMatch[0].length).trim();
     const tokens = remainder.length > 0 ? remainder.split(/\s+/) : [];
     const options = {};
-    let workflowToken;
+    let pieceToken;
     let instruction = '';
     let idx = 0;
     const firstToken = tokens[0];
     if (firstToken && !firstToken.startsWith('--')) {
-        workflowToken = firstToken;
+        pieceToken = firstToken;
         idx = 1;
     }
-    const valueOptions = new Set(['workflow', 'model', 'provider']);
+    const valueOptions = new Set(['piece', 'model', 'provider']);
     while (idx < tokens.length) {
         const token = tokens[idx];
         if (!token) {
@@ -31772,10 +31772,10 @@ function parseSubcommand(commentBody) {
         instruction = tokens.slice(idx).join(' ');
         break;
     }
-    const workflow = options.workflow ?? workflowToken;
+    const piece = options.piece ?? pieceToken;
     return {
         command: 'run',
-        workflow,
+        piece,
         instruction: instruction.trim(),
         options,
     };
@@ -31977,7 +31977,7 @@ function buildIssueTaskContent(ctx, instruction) {
 
 
 /**
- * Execute a takt workflow via CLI in pipeline mode.
+ * Execute a takt piece via CLI in pipeline mode.
  * Uses --pipeline for non-interactive execution, --issue for GitHub issue context,
  * and --auto-pr for PR creation.
  * Requires takt to be installed globally (see ensureTaktInstalled).
@@ -31992,8 +31992,8 @@ async function runTakt(options) {
     if (options.autoPr) {
         args.push('--auto-pr');
     }
-    if (options.workflow) {
-        args.push('--workflow', options.workflow);
+    if (options.piece) {
+        args.push('--piece', options.piece);
     }
     if (options.model) {
         args.push('--model', options.model);
@@ -32038,12 +32038,12 @@ const MAX_COMMENT_LENGTH = 60000;
 /**
  * Format takt execution result into a Markdown string suitable for an Issue comment.
  */
-function formatRunResult(result, workflow) {
+function formatRunResult(result, piece) {
     const status = result.exitCode === 0 ? '✅ 完了' : '❌ 失敗';
     const lines = [];
     lines.push(`## TAKT ${status}`);
     lines.push('');
-    lines.push(`**Workflow**: \`${workflow}\``);
+    lines.push(`**Piece**: \`${piece}\``);
     lines.push('');
     if (result.stdout) {
         let output = result.stdout;
@@ -32190,7 +32190,7 @@ async function run() {
     const anthropicApiKey = core.getInput('anthropic_api_key');
     const openaiApiKey = core.getInput('openai_api_key');
     const githubToken = core.getInput('github_token', { required: true });
-    const workflow = core.getInput('workflow');
+    const piece = core.getInput('piece');
     const logLevel = (core.getInput('log_level') || 'quiet');
     const model = core.getInput('model');
     const provider = core.getInput('provider') || 'claude';
@@ -32214,7 +32214,7 @@ async function run() {
     await ensureGitHubCliAuthenticated(githubToken);
     await configureGitUser();
     core.info(`Event type: ${eventType}`);
-    core.info(`Workflow: ${workflow}`);
+    core.info(`Piece: ${piece}`);
     core.info(`Model: ${model || '(default)'}`);
     core.info(`Provider: ${provider || '(default)'}`);
     core.info(`Post review: ${postReview}`);
@@ -32246,7 +32246,7 @@ async function run() {
                 core.info(`Processing @takt mention on PR #${commentContext.prNumber}`);
                 core.info(`Comment: ${commentContext.commentBody}`);
                 // TODO: Invoke takt WorkflowEngine with comment context (#4, #5)
-                core.info('Interactive review workflow execution is not yet implemented.');
+                core.info('Interactive review via PR comment is not yet implemented.');
                 break;
             }
             // Issue コメントの場合
@@ -32264,18 +32264,18 @@ async function run() {
                     core.info(`Unknown subcommand: "${command.command}". Only "run" is supported.`);
                     break;
                 }
-                const commandWorkflow = command.workflow ?? command.options.workflow;
-                const selectedWorkflow = commandWorkflow ?? workflow;
+                const commandPiece = command.piece ?? command.options.piece;
+                const selectedPiece = commandPiece ?? piece;
                 const selectedModel = command.options.model ?? model;
                 const selectedProvider = command.options.provider ?? provider;
-                await core.group(`#${issueCommentContext.issueNumber}: Running takt workflow "${selectedWorkflow}"`, async () => {
-                    core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
+                await core.group(`#${issueCommentContext.issueNumber}: Running takt piece "${selectedPiece}"`, async () => {
+                    core.info(`Running takt piece "${selectedPiece}" for Issue #${issueCommentContext.issueNumber}`);
                     await ensureTaktInstalled(taktVersion);
                     const result = await runTakt({
                         issueNumber: issueCommentContext.issueNumber,
                         repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,
                         autoPr: true,
-                        workflow: selectedWorkflow,
+                        piece: selectedPiece,
                         model: selectedModel || undefined,
                         provider: selectedProvider !== 'claude' ? selectedProvider : undefined,
                         anthropicApiKey: anthropicApiKey || undefined,
@@ -32283,10 +32283,10 @@ async function run() {
                         logLevel,
                     });
                     core.info(`takt exited with code ${result.exitCode}`);
-                    const commentBody = formatRunResult(result, selectedWorkflow);
+                    const commentBody = formatRunResult(result, selectedPiece);
                     await postIssueComment(githubToken, issueCommentContext.owner, issueCommentContext.repo, issueCommentContext.issueNumber, commentBody);
                     if (result.exitCode !== 0) {
-                        core.setFailed(`takt workflow failed with exit code ${result.exitCode}`);
+                        core.setFailed(`takt piece failed with exit code ${result.exitCode}`);
                     }
                 });
                 break;

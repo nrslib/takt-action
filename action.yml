@@ -17,8 +17,8 @@ inputs:
     description: 'GitHub token for API access'
     required: true
     default: ${{ github.token }}
-  workflow:
-    description: 'TAKT workflow to execute (e.g. review, default)'
+  piece:
+    description: 'TAKT piece to execute (e.g. review, default)'
     required: false
     default: 'default'
   log_level:

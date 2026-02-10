@@ -1,7 +1,7 @@
 export type EventType = 'pull_request' | 'issue_comment' | 'unknown';
 export interface TaktCommand {
     command: 'run' | 'unknown';
-    workflow?: string;
+    piece?: string;
     instruction: string;
     options: Record<string, string>;
 }
@@ -15,6 +15,6 @@ export declare function detectEventType(): EventType;
 export declare function isTaktMention(commentBody: string): boolean;
 /**
  * Parse a subcommand from a @takt mention comment.
- * Supports: "@takt run", "@takt run <workflow>", "@takt <instruction>"
+ * Supports: "@takt run", "@takt run <piece>", "@takt <instruction>"
  */
 export declare function parseSubcommand(commentBody: string): TaktCommand;
