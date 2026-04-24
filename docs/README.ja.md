@@ -101,7 +101,8 @@ jobs:
 | `anthropic_api_key` | 条件付き | - | Anthropic API キー（provider が claude の場合必須） |
 | `openai_api_key` | 条件付き | - | OpenAI API キー（provider が codex の場合必須） |
 | `github_token` | はい | `${{ github.token }}` | GitHub API トークン |
-| `piece` | いいえ | `default` | 実行する TAKT Piece |
+| `workflow` | いいえ | `default` | 実行する TAKT ワークフロー |
+| `piece` | いいえ | - | [非推奨] `workflow` のレガシーエイリアス。 |
 | `model` | いいえ | (デフォルト) | 使用するモデル（opus, sonnet, haiku 等） |
 | `provider` | いいえ | `claude` | 使用するプロバイダー（claude または codex） |
 | `pr_number` | いいえ | (自動検出) | PR 番号 |

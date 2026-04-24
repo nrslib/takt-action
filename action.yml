@@ -17,10 +17,13 @@ inputs:
     description: 'GitHub token for API access'
     required: true
     default: ${{ github.token }}
-  piece:
-    description: 'TAKT piece to execute (e.g. review, default)'
+  workflow:
+    description: 'TAKT workflow to execute (e.g. review, default)'
     required: false
     default: 'default'
+  piece:
+    description: '[Deprecated] Use `workflow` instead. Kept for backward compatibility.'
+    required: false
   log_level:
     description: 'ログレベル: quiet (最小限), detail (詳細), none (出力なし)'
     required: false
