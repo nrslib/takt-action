@@ -220,31 +220,31 @@ describe('buildCommentContext', () => {
 });
 
 describe('parseSubcommand', () => {
-  it('parses "@takt run" as run command with no piece', () => {
+  it('parses "@takt run" as run command with no workflow', () => {
     const result = parseSubcommand('@takt run');
     expect(result).toEqual({
       command: 'run',
-      piece: undefined,
+      workflow: undefined,
       instruction: '',
       options: {},
     });
   });
 
-  it('parses "@takt run default" as run command with piece', () => {
+  it('parses "@takt run default" as run command with workflow', () => {
     const result = parseSubcommand('@takt run default');
     expect(result).toEqual({
       command: 'run',
-      piece: 'default',
+      workflow: 'default',
       instruction: '',
       options: {},
     });
   });
 
-  it('parses "@takt run review extra instruction" as run with piece and instruction', () => {
+  it('parses "@takt run review extra instruction" as run with workflow and instruction', () => {
     const result = parseSubcommand('@takt run review extra instruction');
     expect(result).toEqual({
       command: 'run',
-      piece: 'review',
+      workflow: 'review',
       instruction: 'extra instruction',
       options: {},
     });
@@ -263,7 +263,7 @@ describe('parseSubcommand', () => {
     const result = parseSubcommand('@TAKT run');
     expect(result).toEqual({
       command: 'run',
-      piece: undefined,
+      workflow: undefined,
       instruction: '',
       options: {},
     });
@@ -273,7 +273,7 @@ describe('parseSubcommand', () => {
     const result = parseSubcommand('@takt RUN default');
     expect(result).toEqual({
       command: 'run',
-      piece: 'default',
+      workflow: 'default',
       instruction: '',
       options: {},
     });
@@ -284,21 +284,36 @@ describe('parseSubcommand', () => {
     expect(result).toEqual({ command: 'unknown', instruction: '', options: {} });
   });
 
-  it('parses @takt run --piece review', () => {
+  it('parses @takt run --workflow review', () => {
+    const result = parseSubcommand('@takt run --workflow review');
+    expect(result).toEqual({
+      command: 'run',
+      workflow: 'review',
+      instruction: '',
+      options: { workflow: 'review' },
+    });
+  });
+
+  it('accepts legacy --piece as alias for --workflow', () => {
     const result = parseSubcommand('@takt run --piece review');
     expect(result).toEqual({
       command: 'run',
-      piece: 'review',
+      workflow: 'review',
       instruction: '',
       options: { piece: 'review' },
     });
+  });
+
+  it('prefers --workflow over legacy --piece when both are given', () => {
+    const result = parseSubcommand('@takt run --piece legacy --workflow current');
+    expect(result.workflow).toBe('current');
   });
 
   it('parses @takt run review --model sonnet --provider codex add comments', () => {
     const result = parseSubcommand('@takt run review --model sonnet --provider codex add comments');
     expect(result).toEqual({
       command: 'run',
-      piece: 'review',
+      workflow: 'review',
       instruction: 'add comments',
       options: { model: 'sonnet', provider: 'codex' },
     });

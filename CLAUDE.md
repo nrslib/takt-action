@@ -31,8 +31,8 @@ action.yml (GitHub Action definition)
 
 ### Event Flow
 
-1. **pull_request** (opened/synchronize) → Resolve PR number → Fetch diff → Run takt review piece → Post inline comments
-2. **issue_comment** (created, `@takt` mention) → Parse comment → Run takt piece → Reply with results
+1. **pull_request** (opened/synchronize) → Resolve PR number → Fetch diff → Run takt review workflow → Post inline comments
+2. **issue_comment** (created, `@takt` mention) → Parse comment → Run takt workflow → Reply with results
 
 ## Directory Structure
 
@@ -65,9 +65,9 @@ takt-action/
 
 ## TAKT CLI Notes
 
-- takt v0.5.0+ で `--workflow` は `--piece` に統一
-- パイプラインモード: `takt --pipeline --issue <N> --piece <name> --repo <owner/repo>`
-- 主要オプション: `--piece`, `--model`, `--provider`, `--quiet`, `--auto-pr`, `--skip-git`
+- takt v0.34.0+ で `--piece` → `--workflow` に再統一（`--piece` は CLI からは削除済み）
+- パイプラインモード: `takt --pipeline --issue <N> --workflow <name> --repo <owner/repo>`
+- 主要オプション: `--workflow`, `--model`, `--provider`, `--quiet`, `--auto-pr`, `--skip-git`
 
 ## TypeScript Notes
 

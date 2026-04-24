@@ -4,7 +4,7 @@ export type EventType = 'pull_request' | 'issue_comment' | 'unknown';
 
 export interface TaktCommand {
   command: 'run' | 'unknown';
-  piece?: string;
+  workflow?: string;
   instruction: string;
   options: Record<string, string>;
 }
@@ -34,7 +34,8 @@ export function isTaktMention(commentBody: string): boolean {
 
 /**
  * Parse a subcommand from a @takt mention comment.
- * Supports: "@takt run", "@takt run <piece>", "@takt <instruction>"
+ * Supports: "@takt run", "@takt run <workflow>", "@takt <instruction>"
+ * --workflow is primary; --piece is accepted as a legacy alias.
  */
 export function parseSubcommand(commentBody: string): TaktCommand {
   const stripped = commentBody.replace(TAKT_MENTION_PATTERN, '').trim();
@@ -52,17 +53,17 @@ export function parseSubcommand(commentBody: string): TaktCommand {
   const tokens = remainder.length > 0 ? remainder.split(/\s+/) : [];
 
   const options: Record<string, string> = {};
-  let pieceToken: string | undefined;
+  let workflowToken: string | undefined;
   let instruction = '';
   let idx = 0;
 
   const firstToken = tokens[0];
   if (firstToken && !firstToken.startsWith('--')) {
-    pieceToken = firstToken;
+    workflowToken = firstToken;
     idx = 1;
   }
 
-  const valueOptions = new Set(['piece', 'model', 'provider']);
+  const valueOptions = new Set(['workflow', 'piece', 'model', 'provider']);
 
   while (idx < tokens.length) {
     const token = tokens[idx];
@@ -97,11 +98,11 @@ export function parseSubcommand(commentBody: string): TaktCommand {
     break;
   }
 
-  const piece = options.piece ?? pieceToken;
+  const workflow = options.workflow ?? options.piece ?? workflowToken;
 
   return {
     command: 'run',
-    piece,
+    workflow,
     instruction: instruction.trim(),
     options,
   };
