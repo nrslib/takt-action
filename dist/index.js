@@ -32130,6 +32130,22 @@ async function ensureTaktInstalled(version = 'latest') {
         }
     }
 }
+const MANAGED_PROVIDERS = new Set(['claude-sdk', 'codex', 'opencode', 'pi', 'deepseek-harness']);
+/**
+ * Install the provider SDK that takt manages outside its npm package.
+ * takt requires `takt install <provider>` before an SDK-based provider can run.
+ * Providers backed by an external CLI are left untouched.
+ * @param provider - Provider name; `claude` is takt's alias for `claude-sdk`
+ */
+async function ensureProviderInstalled(provider) {
+    const managedProvider = provider === 'claude' ? 'claude-sdk' : provider;
+    if (!MANAGED_PROVIDERS.has(managedProvider)) {
+        return;
+    }
+    core.info(`Installing ${managedProvider} SDK for takt...`);
+    await exec.exec('takt', ['install', managedProvider]);
+    core.info(`${managedProvider} SDK installed successfully`);
+}
 /**
  * Authenticate gh CLI with a GitHub token if not already logged in.
  * This is required because the action uses gh to fetch PR metadata/diffs.
@@ -32277,6 +32293,7 @@ async function run() {
                 await core.group(`#${issueCommentContext.issueNumber}: Running takt workflow "${selectedWorkflow}"`, async () => {
                     core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
                     await ensureTaktInstalled(taktVersion);
+                    await ensureProviderInstalled(selectedProvider);
                     const result = await runTakt({
                         issueNumber: issueCommentContext.issueNumber,
                         repo: `${issueCommentContext.owner}/${issueCommentContext.repo}`,
