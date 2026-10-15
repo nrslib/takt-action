@@ -104,7 +104,7 @@ jobs:
 | `workflow` | いいえ | `default` | 実行する TAKT ワークフロー |
 | `piece` | いいえ | - | [非推奨] `workflow` のレガシーエイリアス。 |
 | `model` | いいえ | (デフォルト) | 使用するモデル（opus, sonnet, haiku 等） |
-| `provider` | いいえ | `claude` | 使用するプロバイダー（claude または codex） |
+| `provider` | いいえ | `claude` | 使用するプロバイダー（claude または codex）。SDK で動くプロバイダーは、TAKT の実行前に `takt install <provider>` を実行します |
 | `pr_number` | いいえ | (自動検出) | PR 番号 |
 | `post_review` | いいえ | `true` | レビュー結果を PR インラインコメントとして投稿 |
 | `log_level` | いいえ | `quiet` | ログレベル: `quiet`（最小限）、`detail`（詳細）、`none`（出力なし） |

@@ -136,7 +136,7 @@ jobs:
 | `workflow` | No | `default` | TAKT workflow to execute |
 | `piece` | No | - | [Deprecated] Legacy alias for `workflow`. |
 | `model` | No | (default) | Model to use (opus, sonnet, haiku, etc.) |
-| `provider` | No | `claude` | Provider to use (claude or codex) |
+| `provider` | No | `claude` | Provider to use (claude or codex). The action runs `takt install <provider>` for SDK-based providers before running TAKT |
 | `pr_number` | No | (auto-detect) | Pull request number |
 | `post_review` | No | `true` | Post review results as PR inline comments |
 | `log_level` | No | `quiet` | Log level: `quiet` (minimal), `detail` (verbose), `none` (no output) |

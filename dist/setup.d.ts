@@ -5,6 +5,13 @@
  */
 export declare function ensureTaktInstalled(version?: string): Promise<void>;
 /**
+ * Install the provider SDK that takt manages outside its npm package.
+ * takt requires `takt install <provider>` before an SDK-based provider can run.
+ * Providers backed by an external CLI are left untouched.
+ * @param provider - Provider name; `claude` is takt's alias for `claude-sdk`
+ */
+export declare function ensureProviderInstalled(provider: string): Promise<void>;
+/**
  * Authenticate gh CLI with a GitHub token if not already logged in.
  * This is required because the action uses gh to fetch PR metadata/diffs.
  */

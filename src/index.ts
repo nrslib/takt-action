@@ -10,7 +10,7 @@ import {
 } from './context.js';
 import { runTakt, formatRunResult } from './runner.js';
 import { postIssueComment } from './comment.js';
-import { ensureTaktInstalled, ensureGitHubCliAuthenticated, configureGitUser } from './setup.js';
+import { ensureTaktInstalled, ensureProviderInstalled, ensureGitHubCliAuthenticated, configureGitUser } from './setup.js';
 
 async function run(): Promise<void> {
   const eventType = detectEventType();
@@ -123,6 +123,7 @@ async function run(): Promise<void> {
             core.info(`Running takt workflow "${selectedWorkflow}" for Issue #${issueCommentContext.issueNumber}`);
 
             await ensureTaktInstalled(taktVersion);
+            await ensureProviderInstalled(selectedProvider);
 
             const result = await runTakt({
               issueNumber: issueCommentContext.issueNumber,
